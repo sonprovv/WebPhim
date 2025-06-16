@@ -18,13 +18,10 @@ export default function YearPage({ params }: YearPageProps) {
     page,
     setPage,
     totalPages,
-    filters,
-    updateFilters,
-    categories,
-    countries,
+    refetch,
   } = useMovies({
     type: 'phim-moi-cap-nhat',
-    initialFilters: {
+    filters: {
       year: parseInt(params.year),
     },
   });
@@ -32,15 +29,6 @@ export default function YearPage({ params }: YearPageProps) {
   return (
     <main className="container py-8">
       <h1 className="mb-8 text-3xl font-bold">Phim Năm {params.year}</h1>
-
-      <div className="mb-8">
-        <MovieFilters
-          categories={categories}
-          countries={countries}
-          filters={filters}
-          onFilterChange={updateFilters}
-        />
-      </div>
 
       <MovieList
         movies={movies}
