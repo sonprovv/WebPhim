@@ -15,24 +15,46 @@ interface Episode {
 import { HTMLAttributes } from 'react';
 
 interface PlayerProps extends HTMLAttributes<HTMLDivElement> {
-  movie: {
+  // Either use movie with episodes
+  movie?: {
     _id: string;
     name: string;
     poster_url?: string;
     [key: string]: any;
   };
-  episodes: {
+  episodes?: {
     server_name: string;
     server_data: Episode[];
   }[];
+  
+  // Or use direct URL and poster
+  url?: string;
+  poster?: string;
 }
 
 export function Player({ 
   movie,
   episodes = [], 
-  className = ''
+  className = '',
+  url,
+  poster
 }: PlayerProps) {
-  // Find the current episode based on URL
+  // If direct URL is provided, use that
+  if (url) {
+    return (
+      <div className={className}>
+        <HLSPlayer 
+          src={url} 
+          poster={poster} 
+          className="w-full h-full"
+          autoPlay
+          controls
+        />
+      </div>
+    );
+  }
+
+  // Otherwise, use the movie/episodes logic
   const { episode: episodeSlug } = useParams() as { episode?: string };
   
   // Get all available video sources
@@ -57,36 +79,52 @@ export function Player({
   const videoUrl = (() => {
     // Try to get URL from the first server's first episode
     if (episodes?.[0]?.server_data?.[0]) {
-      return episodes[0].server_data[0].link_m3u8 || episodes[0].server_data[0].link_embed;
+      const source = episodes[0].server_data[0];
+      // Prefer m3u8 over embed URL
+      return source.link_m3u8 || source.link_embed;
     }
     
     // Otherwise try to use the current episode's m3u8 or embed URL
     if (currentEpisode) {
+      // Prefer m3u8 over embed URL
       return currentEpisode.link_m3u8 || currentEpisode.link_embed;
     }
     
     // Fallback to first available source
     if (availableSources.length > 0) {
       const source = availableSources[0];
+      // Prefer m3u8 over embed URL
       return source.link_m3u8 || source.link_embed;
     }
     
     return '';
   })();
   
-  // Use poster from movie
-  const posterUrl = movie?.poster_url;
+  // Validate video URL
+  const isValidVideoUrl = (url: string) => {
+    if (!url) return false;
+    // Check if URL is valid
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
-  if (!videoUrl) {
+  if (!videoUrl || !isValidVideoUrl(videoUrl)) {
     return (
       <Card className={`w-full h-full flex items-center justify-center bg-black ${className || ''}`}>
         <div className="text-center text-white p-4">
-          <p>Không tìm thấy nguồn phát video</p>
+          <p>Không tìm thấy nguồn phát video hợp lệ</p>
           <p className="text-sm text-gray-400 mt-2">Vui lòng thử lại hoặc chọn tập khác</p>
         </div>
       </Card>
     );
   }
+
+  // Use poster from movie
+  const posterUrl = movie?.poster_url;
 
   const cardClassName = `w-full overflow-hidden bg-black ${className || ''}`;
   

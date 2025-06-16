@@ -32,6 +32,9 @@ export default function WatchPage() {
     currentServerEpisodes.find((ep: any) => ep.slug === currentEpisode) ||
     currentServerEpisodes[0];
 
+  // Lấy link_embed cho iframe
+  const embedUrl = currentEpisodeData?.link_embed;
+
   // Handle episode change
   const handleEpisodeChange = useCallback(
     (newEpisodeSlug: string) => {
@@ -176,12 +179,16 @@ export default function WatchPage() {
         )}
 
         {/* Player */}
-        {videoUrl ? (
+        {embedUrl ? (
           <div className="mb-6">
-            <Player
-              url={videoUrl}
-              poster={movie?.thumb_url}
-              className="w-full max-h-[60vh] rounded-lg shadow-lg" // Giới hạn chiều cao tối đa
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="500"
+              allowFullScreen
+              frameBorder="0"
+              style={{ borderRadius: 8, background: '#000' }}
+              title="Phim Player"
             />
           </div>
         ) : (
@@ -232,7 +239,7 @@ export default function WatchPage() {
                               : "bg-gray-600 hover:bg-gray-500"
                           }`}
                         >
-                          {ep.name || `Tập ${ep.slug.split("-").pop()}`}
+                          {ep.name || `Tập ${ep.slug.split("-").pop() || server.server_data.indexOf(ep) + 1}`}
                         </button>
                       ))}
                     </div>

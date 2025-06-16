@@ -21,10 +21,18 @@ interface EpisodeListProps {
   itemsPerPage?: number;
 }
 
-// Function to extract episode number from filename
-const extractEpisodeNumber = (filename: string): number => {
-  const match = filename.match(/T(\d+)(?:-|$)/i);
-  return match ? parseInt(match[1], 10) : 0;
+// Function to extract episode number from filename or slug
+const extractEpisodeNumber = (filename: string, slug: string): number => {
+  // Try to get from filename first (format: ...T01-... or ...T1-...)
+  const filenameMatch = filename.match(/T(\d+)(?:-|$)/i);
+  if (filenameMatch) return parseInt(filenameMatch[1], 10);
+  
+  // If not found in filename, try to get from slug (format: tap-1, tap-01, tap1, tap01)
+  const slugMatch = slug.match(/^(?:tap-?|ep-?)?(\d+)$/i) || slug.match(/(\d+)$/);
+  if (slugMatch) return parseInt(slugMatch[1], 10);
+  
+  // If still not found, return 0
+  return 0;
 };
 
 export function EpisodeList({ 
@@ -48,10 +56,15 @@ export function EpisodeList({
   const processedEpisodes = episodes.map(server => ({
     ...server,
     server_data: server.server_data
-      .map(episode => ({
-        ...episode,
-        episode_number: extractEpisodeNumber(episode.filename)
-      }))
+      .map(episode => {
+        const epNumber = extractEpisodeNumber(episode.filename, episode.slug);
+        return {
+          ...episode,
+          episode_number: epNumber,
+          // Use the extracted number or fallback to array index + 1
+          displayNumber: epNumber > 0 ? epNumber : (server.server_data.indexOf(episode) + 1)
+        };
+      })
       .sort((a, b) => a.episode_number - b.episode_number)
   }));
 
@@ -91,23 +104,28 @@ export function EpisodeList({
             {isExpanded && (
               <div className="p-4">
                 <div className="flex flex-wrap gap-2">
-                  {episodesToShow.map((episode) => (
-                    <Link
-                      key={episode.slug}
-                      href={`/phim/${movieSlug}/xem/tap-${episode.episode_number}`}
-                      className={`inline-flex items-center justify-center min-w-[44px] h-10 rounded-md ${
-                        currentEpisode === episode.episode_number?.toString()
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      } transition-colors relative group`}
-                      title={`Tập ${episode.episode_number}`}
-                    >
-                      <span className="px-2 font-medium">{episode.episode_number}</span>
-                      {currentEpisode === episode.episode_number?.toString() && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                      )}
-                    </Link>
-                  ))}
+                  {episodesToShow.map((episode) => {
+                    const isCurrent = currentEpisode === episode.slug.split('-').pop() || 
+                                    currentEpisode === `tap-${episode.displayNumber}`;
+                    
+                    return (
+                      <Link
+                        key={episode.slug}
+                        href={`/phim/${movieSlug}/xem/${episode.slug || `tap-${episode.displayNumber}`}`}
+                        className={`inline-flex items-center justify-center min-w-[44px] h-10 rounded-md ${
+                          isCurrent
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        } transition-colors relative group`}
+                        title={`Tập ${episode.displayNumber}`}
+                      >
+                        <span className="px-2 font-medium">{episode.displayNumber}</span>
+                        {isCurrent && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
                 
                 {hasMore && (

@@ -15,7 +15,7 @@ const ENDPOINTS = {
   YEAR: "/v1/api/nam",
 } as const;
 
-// Interfaces
+// Interfaces (unchanged)
 export interface MovieListParams {
   page?: number;
   sort_field?: "modified.time" | "_id" | "year";
@@ -118,9 +118,8 @@ export const getLatestMovies = async (params: MovieListParams = { page: 1 }): Pr
   try {
     const response = await axios.get(url, {
       params: { ...params, limit: params.limit || 20 },
-      timeout: 5000, // Giới hạn 5 giây
+      timeout: 5000,
     });
-    console.log("getLatestMovies response:", JSON.stringify(response.data, null, 2));
     if (!response.data?.items) {
       throw new Error("Không có dữ liệu phim mới");
     }
@@ -161,7 +160,6 @@ export const getMovieList = async (type: string, params: MovieListParams = {}): 
       params: { ...params, limit: params.limit || 20 },
       timeout: 5000,
     });
-    console.log("getMovieList response:", JSON.stringify(response.data, null, 2));
     if (!response.data?.data?.items) {
       throw new Error("Không có dữ liệu phim");
     }
@@ -184,7 +182,6 @@ export const getCategories = async (): Promise<Category[]> => {
   const url = `${BASE_URL}${ENDPOINTS.CATEGORIES}`;
   try {
     const response = await axios.get(url, { timeout: 5000 });
-    console.log("getCategories response:", JSON.stringify(response.data, null, 2));
     if (Array.isArray(response.data)) {
       return response.data.map((item: any) => ({
         id: item._id,
@@ -207,7 +204,6 @@ export const getCountries = async (): Promise<Country[]> => {
   const url = `${BASE_URL}${ENDPOINTS.COUNTRIES}`;
   try {
     const response = await axios.get(url, { timeout: 5000 });
-    console.log("getCountries response:", JSON.stringify(response.data, null, 2));
     if (Array.isArray(response.data)) {
       return response.data.map((item: any) => ({
         id: item._id,
@@ -224,26 +220,26 @@ export const getCountries = async (): Promise<Country[]> => {
 
 export const getMovieDetail = async (slug: string): Promise<MovieDetailResponse> => {
   try {
-    const response = await fetch(`/api/movie/${slug}`, {
-      cache: 'no-store',
+    const response = await fetch(`/api/phim/${slug}`, { // Sử dụng endpoint rewrite từ next.config.js
+      cache: "no-store",
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Có lỗi xảy ra khi tải chi tiết phim');
+      throw new Error(errorData.error || "Có lỗi xảy ra khi tải chi tiết phim");
     }
 
-    const data = await response.json();
-    
+    const data: MovieDetailResponse = await response.json();
+
     if (!data.status) {
-      throw new Error(data.msg || 'Không tìm thấy phim');
+      throw new Error(data.msg || "Không tìm thấy phim");
     }
-    
+
     return data;
   } catch (error: any) {
-    console.error('Lỗi khi tải chi tiết phim:', error);
+    console.error("Lỗi khi tải chi tiết phim:", error);
     throw new Error(
-      error.message || 'Có lỗi xảy ra khi tải chi tiết phim. Vui lòng thử lại sau.'
+      error.message || "Có lỗi xảy ra khi tải chi tiết phim. Vui lòng thử lại sau."
     );
   }
 };
@@ -255,7 +251,6 @@ export const searchMovies = async (keyword: string, params: MovieListParams = {}
       params: { keyword, ...params, limit: params.limit || 20 },
       timeout: 5000,
     });
-    console.log("searchMovies response:", JSON.stringify(response.data, null, 2));
     if (!response.data?.data?.items) {
       throw new Error("Không tìm thấy phim");
     }
@@ -278,27 +273,24 @@ export const searchMovies = async (keyword: string, params: MovieListParams = {}
 export const getMoviesByCategory = async (
   slug: string,
   params: MovieListParams & {
-    sort_lang?: 'vietsub' | 'thuyet-minh' | 'long-tieng';
+    sort_lang?: "vietsub" | "thuyet-minh" | "long-tieng";
     country?: string;
     year?: number;
-    sort_field?: '_id' | 'modified.time' | 'year' | 'view';
-    sort_type?: 'asc' | 'desc';
+    sort_field?: "_id" | "modified.time" | "year" | "view";
+    sort_type?: "asc" | "desc";
   } = {}
 ): Promise<MoviesResponse> => {
-  // Build the base URL with the category slug
   const url = `${BASE_URL}${ENDPOINTS.CATEGORY}/${slug}`;
-  
-  // Set default parameters
+
   const defaultParams = {
     page: 1,
     limit: 10,
-    sort_field: '_id',
-    sort_type: 'asc',
-    sort_lang: 'long-tieng',
-    ...params
+    sort_field: "_id",
+    sort_type: "asc",
+    sort_lang: "long-tieng",
+    ...params,
   };
 
-  // Filter out undefined parameters
   const requestParams = Object.fromEntries(
     Object.entries(defaultParams).filter(([_, value]) => value !== undefined)
   );
@@ -309,9 +301,9 @@ export const getMoviesByCategory = async (
     const response = await axios.get<MoviesResponse>(url, {
       params: requestParams,
       paramsSerializer: {
-        indexes: null, // Don't use array format like `country[]=trung-quoc`
+        indexes: null,
       },
-      timeout: 15000, // 15 seconds timeout
+      timeout: 15000,
     });
 
     console.log(`[getMoviesByCategory] Response for ${slug}:`, {
@@ -321,15 +313,12 @@ export const getMoviesByCategory = async (
         params: response.config.params,
       },
     });
-    
-    // Check for error status in response
-    if (response.data.status === 'error') {
-      const errorMessage = response.data.msg || 'Lỗi từ API';
+
+    if (response.data.status === "error") {
+      const errorMessage = response.data.msg || "Lỗi từ API";
       console.error(`[getMoviesByCategory] API Error: ${errorMessage}`);
-      
-      // Return a proper error response instead of throwing
       return {
-        status: 'error',
+        status: "error",
         msg: errorMessage,
         data: {
           items: [],
@@ -341,18 +330,16 @@ export const getMoviesByCategory = async (
               totalPages: 0,
             },
           },
-          APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || '',
+          APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || "",
         },
       };
     }
-    
-    // Check if data.items exists
+
     if (!response.data?.data?.items) {
       console.warn(`[getMoviesByCategory] No items found in response for ${slug}. Response data:`, response.data);
-      // Return empty items array with required properties
       return {
-        status: 'success',
-        msg: 'No movies found for the specified category',
+        status: "success",
+        msg: "No movies found for the specified category",
         data: {
           items: [],
           params: {
@@ -363,11 +350,11 @@ export const getMoviesByCategory = async (
               totalPages: 0,
             },
           },
-          APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || '',
+          APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || "",
         },
       };
     }
-    
+
     return response.data;
   } catch (error) {
     console.error(`Lỗi khi gọi getMoviesByCategory từ ${url}:`, error);
@@ -376,15 +363,15 @@ export const getMoviesByCategory = async (
       msg: error instanceof Error ? error.message : "Không thể tải dữ liệu phim theo thể loại",
       data: {
         items: [],
-        params: { 
-          pagination: { 
-            totalItems: 0, 
-            totalItemsPerPage: params?.limit || 20, 
-            currentPage: params?.page || 1, 
-            totalPages: 0 
-          } 
+        params: {
+          pagination: {
+            totalItems: 0,
+            totalItemsPerPage: params?.limit || 20,
+            currentPage: params?.page || 1,
+            totalPages: 0,
+          },
         },
-        APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || '',
+        APP_DOMAIN_CDN_IMAGE: process.env.NEXT_PUBLIC_APP_DOMAIN_CDN_IMAGE || "",
       },
     };
   }
@@ -397,7 +384,6 @@ export const getMoviesByCountry = async (slug: string, params: MovieListParams =
       params: { ...params, limit: params.limit || 20 },
       timeout: 5000,
     });
-    console.log("getMoviesByCountry response:", JSON.stringify(response.data, null, 2));
     if (!response.data?.data?.items) {
       throw new Error("Không có dữ liệu phim");
     }
@@ -423,7 +409,6 @@ export const getMoviesByYear = async (year: number, params: MovieListParams = {}
       params: { ...params, limit: params.limit || 20 },
       timeout: 5000,
     });
-    console.log("getMoviesByYear response:", JSON.stringify(response.data, null, 2));
     if (!response.data?.data?.items) {
       throw new Error("Không có dữ liệu phim");
     }

@@ -26,6 +26,11 @@ const nextConfig = {
         source: '/api/tim-kiem',
         destination: 'https://phimapi.com/v1/api/tim-kiem',
       },
+      // Thêm rule mới để proxy video
+      {
+        source: '/api/video/:path*',
+        destination: 'https://s4.phim1280.tv/:path*',
+      },
     ];
   },
   images: {
