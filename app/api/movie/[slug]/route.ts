@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerMovieDetail } from '@/lib/server-api';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-): Promise<ReturnType<typeof NextResponse.json>> {
+export async function GET(request: NextRequest) {
+  // Lấy slug từ URL
+  const url = new URL(request.url);
+  const paths = url.pathname.split('/');
+  const slug = paths[paths.length - 1];
+
   try {
-    const { slug } = params;
     const data = await getServerMovieDetail(slug);
     return NextResponse.json(data);
   } catch (error: any) {
