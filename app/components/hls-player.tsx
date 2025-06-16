@@ -188,16 +188,17 @@ export function HLSPlayer({
           if (isMounted.current) {
             let errorMessage = "Lỗi khi phát video. ";
             
-            if (error.code === 1) {
-              errorMessage += "Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.";
-            } else if (error.code === 2) {
-              errorMessage += "Không thể tải video. Vui lòng thử server khác.";
-            } else if (error.code === 3) {
-              errorMessage += "Lỗi phát video. Vui lòng thử lại.";
-            } else if (error.code === 4) {
-              errorMessage += "Video không hỗ trợ. Vui lòng thử server khác.";
+            if (error) {
+              if (error.code === 1) {
+                errorMessage += "Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.";
+              } else if (error.code === 2) {
+                errorMessage += "Không thể tải video. Vui lòng thử server khác.";
+              } else if (error.code === 3) {
+                errorMessage += "Lỗi phát video. Vui lòng thử lại.";
+              } else if (error.code === 4) {
+                errorMessage += "Video không hỗ trợ. Vui lòng thử server khác.";
+              }
             }
-            
             setError(errorMessage);
             setIsLoading(false);
             
