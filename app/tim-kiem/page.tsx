@@ -8,6 +8,7 @@ import { MovieFilters } from '@/components/MovieFilters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { Suspense } from 'react';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -55,28 +56,30 @@ export default function SearchPage() {
         </div>
       </form>
 
-      {keyword && (
-        <>
-          {/* Nếu muốn dùng MovieFilters, cần tự quản lý state filters và onFilterChange */}
-          {/*
-          <div className="mb-8">
-            <MovieFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
-          </div>
-          */}
+      <Suspense fallback={<div>Đang tải kết quả tìm kiếm...</div>}>
+        {keyword && (
+          <>
+            {/* Nếu muốn dùng MovieFilters, cần tự quản lý state filters và onFilterChange */}
+            {/*
+            <div className="mb-8">
+              <MovieFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
+            */}
 
-          <MovieList
-            movies={movies}
-            loading={loading}
-            error={error}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </>
-      )}
+            <MovieList
+              movies={movies}
+              loading={loading}
+              error={error}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </>
+        )}
+      </Suspense>
     </main>
   );
 }
