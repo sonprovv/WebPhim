@@ -1,0 +1,37 @@
+.video-js {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #000;
+    border-radius: 8px;
+  }
+  
+  .video-js.vjs-default-skin .vjs-control-bar {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    color: #fff;
+  }
+  
+  .video-js.vjs-default-skin .vjs-play-progress,
+  .video-js.vjs-default-skin .vjs-slider {
+    background-color: #4a90e2 !important;
+  }
+  
+  .video-js.vjs-default-skin .vjs-volume-level {
+    background-color: #4a90e2 !important;
+  }
+  
+  .video-js.vjs-default-skin .vjs-big-play-button {
+    background-color: #4a90e2 !important;
+    border-color: #4a90e2 !important;
+  }
+  
+  /* Đảm bảo video responsive */
+  .video-js.vjs-fluid {
+    padding-top: 56.25% !important; /* Tỷ lệ 16:9 */
+  }
+  
+  /* Giới hạn chiều cao tối đa trên các màn hình lớn */
+  @media (min-width: 1024px) {
+    .video-js {
+      max-height: 60vh !important;
+    }
+  }
