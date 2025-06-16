@@ -4,7 +4,7 @@ import { getServerMovieDetail } from '@/lib/server-api';
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
-) {
+): Promise<ReturnType<typeof NextResponse.json>> {
   try {
     const { slug } = params;
     const data = await getServerMovieDetail(slug);
