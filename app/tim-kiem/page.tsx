@@ -21,18 +21,14 @@ export default function SearchPage() {
     page,
     setPage,
     totalPages,
-    filters,
-    updateFilters,
-    categories,
-    countries,
-    searchMovies,
+    refetch,
   } = useMovies();
 
   useEffect(() => {
     if (keyword) {
-      searchMovies(keyword);
+      refetch();
     }
-  }, [keyword, searchMovies]);
+  }, [keyword, refetch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,14 +57,15 @@ export default function SearchPage() {
 
       {keyword && (
         <>
+          {/* Nếu muốn dùng MovieFilters, cần tự quản lý state filters và onFilterChange */}
+          {/*
           <div className="mb-8">
             <MovieFilters
-              categories={categories}
-              countries={countries}
               filters={filters}
-              onFilterChange={updateFilters}
+              onFilterChange={handleFilterChange}
             />
           </div>
+          */}
 
           <MovieList
             movies={movies}

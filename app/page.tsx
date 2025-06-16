@@ -15,6 +15,11 @@ export default async function HomePage() {
   const genres = await getGenres();
   const countries = await getCountries();
 
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { id: year.toString(), name: year.toString(), count: 0 };
+  });
+
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-gray-900 text-white">
@@ -27,7 +32,11 @@ export default async function HomePage() {
             </Suspense>
           </section>
         </div>
-        <Sidebar genres={genres} countries={countries} />
+        <Sidebar
+          genres={genres.map(g => ({ ...g, count: 0 }))}
+          countries={countries.map(c => ({ ...c, count: 0 }))}
+          years={years}
+        />
       </div>
     </SidebarProvider>
   );

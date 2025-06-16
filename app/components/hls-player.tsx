@@ -204,9 +204,14 @@ export function HLSPlayer({
             
             // Auto retry after 5 seconds
             setTimeout(() => {
-              if (isMounted.current && player && !player.isDisposed()) {
+              if (
+                isMounted.current &&
+                player &&
+                !player.isDisposed() &&
+                typeof player.play === 'function'
+              ) {
                 player.load();
-                player.play().catch(() => {
+                (player.play as () => Promise<void>)().catch(() => {
                   console.log("Auto-retry playback failed");
                 });
               }

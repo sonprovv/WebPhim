@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { api, Movie, MovieResponse } from '@/lib/api';
+import { api, Movie, MoviesResponse } from '@/lib/api';
 
 interface UseMoviesOptions {
   type?: string;
@@ -30,15 +30,21 @@ export function useMovies({
       setLoading(true);
       setError(null);
 
-      let response: MovieResponse;
+      let response: MoviesResponse;
       if (type === 'phim-moi-cap-nhat') {
-        response = await api.getLatestMovies(page);
+        response = await api.getLatestMovies({ page });
       } else {
-        response = await api.getMovieList(type, { page, ...filters });
+        response = await api.getMovieList(type, {
+          page,
+          ...filters,
+          sort_field: filters.sort_field as '_id' | 'modified.time' | 'year' | undefined,
+          sort_type: filters.sort_type as 'asc' | 'desc' | undefined,
+          sort_lang: filters.sort_lang as 'vietsub' | 'thuyet-minh' | 'long-tieng' | undefined,
+        });
       }
 
-      setMovies(response.items);
-      setTotalPages(response.pagination.totalPages);
+      setMovies(response.data.items);
+      setTotalPages(response.data.params.pagination.totalPages);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
