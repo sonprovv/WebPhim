@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useMovies } from '@/hooks/useMovies';
 import { MovieList } from '@/components/MovieList';
@@ -8,11 +8,19 @@ import { MovieFilters } from '@/components/MovieFilters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-import { Suspense } from 'react';
+
+// Component con để lấy searchParams
+function SearchParamsWrapper({ setKeyword }: { setKeyword: (value: string) => void }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    setKeyword(searchParams.get('keyword') || '');
+  }, [searchParams, setKeyword]);
+
+  return null;
+}
 
 export default function SearchPage() {
-  const searchParams = useSearchParams();
-  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [keyword, setKeyword] = useState('');
   const [searchQuery, setSearchQuery] = useState(keyword);
 
   const {
@@ -56,18 +64,16 @@ export default function SearchPage() {
         </div>
       </form>
 
-      <Suspense fallback={<div>Đang tải kết quả tìm kiếm...</div>}>
+      <Suspense fallback={<div>Đang tải dữ liệu tìm kiếm...</div>}>
+        <SearchParamsWrapper setKeyword={setKeyword} />
         {keyword && (
           <>
-            {/* Nếu muốn dùng MovieFilters, cần tự quản lý state filters và onFilterChange */}
-            {/*
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <MovieFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}
               />
-            </div>
-            */}
+            </div> */}
 
             <MovieList
               movies={movies}
