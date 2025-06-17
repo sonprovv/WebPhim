@@ -32,11 +32,7 @@ export default async function HomePage() {
             </Suspense>
           </section>
         </div>
-        <Sidebar
-          genres={genres.map(g => ({ ...g, count: 0 }))}
-          countries={countries.map(c => ({ ...c, count: 0 }))}
-          years={years}
-        />
+        
       </div>
     </SidebarProvider>
   );

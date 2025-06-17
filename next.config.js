@@ -36,6 +36,11 @@ const nextConfig = {
   images: {
     domains: ['phimimg.com'],
   },
+  optimizeFonts: true,
+  swcMinify: true,
+  experimental: {
+    optimizeCss: true,
+  },
 };
 
 module.exports = nextConfig;

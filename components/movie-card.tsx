@@ -7,20 +7,9 @@ import { Badge } from "@/components/ui/badge"
 import { useState } from 'react';
 
 // Helper function to validate and format URL
-const getImageUrl = (url?: string): string | null => {
-  if (!url) return null;
-  
-  // If it's already a full URL, return it
-  if (url.startsWith('http')) {
-    return url;
-  }
-  
-  // If it's a relative URL, prepend the base URL
-  if (url.startsWith('/')) {
-    return `https://img.ophim1.com${url}`;
-  }
-  
-  return null;
+const getImageUrl = (url?: string): string => {
+  if (!url) return '/placeholder.jpg';
+  return url;
 };
 
 interface MovieCardProps {
@@ -29,10 +18,10 @@ interface MovieCardProps {
 
 export function MovieCard({ movie }: MovieCardProps) {
   const [imageError, setImageError] = useState(false);
-  const imageUrl = getImageUrl(movie.poster_url);
+  const imageUrl = getImageUrl(movie.poster_url || movie.thumb_url);
   
-  // If there was an error or no image URL, show placeholder
-  if (imageError || !imageUrl) {
+  // If there was an error, show placeholder
+  if (imageError) {
     return (
       <Link href={`/phim/${movie.slug}`}>
         <div className="group relative aspect-[2/3] rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center">
@@ -66,6 +55,7 @@ export function MovieCard({ movie }: MovieCardProps) {
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => setImageError(true)}
+            unoptimized // Add this to bypass Next.js image optimization
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">

@@ -9,15 +9,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useRouter } from "next/navigation"
-import { api } from "@/lib/api"
+import { api, MOVIE_TYPES } from "@/lib/api"
 
 const menuItems = [
   { label: "Phim Mới", href: "/" },
-  { label: "Phim Bộ", href: "/danh-sach/phim-bo" },
-  { label: "Phim Lẻ", href: "/danh-sach/phim-le" },
-  { label: "TV Shows", href: "/danh-sach/tv-shows" },
-  { label: "Hoạt Hình", href: "/danh-sach/hoat-hinh" },
-  { label: "Quốc Gia", href: "/quoc-gia" },
+  { label: "Phim Bộ", href: `/danh-sach/${MOVIE_TYPES[0]}` },
+  { label: "Phim Lẻ", href: `/danh-sach/${MOVIE_TYPES[1]}` },
+  { label: "TV Shows", href: `/danh-sach/${MOVIE_TYPES[2]}` },
+  { label: "Hoạt Hình", href: `/danh-sach/${MOVIE_TYPES[3]}` },
+
 ]
 
 interface Category {
@@ -34,22 +34,38 @@ export function Header() {
   const router = useRouter()
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchCategories = async () => {
       try {
-        const data = await api.getCategories()
-        setCategories(data)
+        console.log('Fetching categories...');
+        const fetchedCategories = await api.getCategories();
+        console.log('Raw fetched categories:', JSON.stringify(fetchedCategories, null, 2));
+        
+        if (isMounted) {
+          if (fetchedCategories && fetchedCategories.length > 0) {
+            console.log('Setting categories:', JSON.stringify(fetchedCategories, null, 2));
+            setCategories(fetchedCategories);
+          } else {
+            console.warn('No categories fetched or empty response');
+          }
+        }
       } catch (error) {
-        console.error('Error fetching categories:', error)
+        console.error('Error fetching categories:', error);
       }
     }
 
-    fetchCategories()
-  }, [])
+    fetchCategories();
+
+    return () => {
+      isMounted = false;
+    }
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/tim-kiem?keyword=${encodeURIComponent(searchQuery)}`)
+      router.push(`/tim-kiem?keyword=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
@@ -73,6 +89,7 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+            {/* Categories Dropdown */}
             <div className="relative group">
               <button 
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}

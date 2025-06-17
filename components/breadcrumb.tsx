@@ -27,7 +27,6 @@ export function Breadcrumb() {
     'danh-sach': 'Danh sách',
     'tim-kiem': 'Tìm kiếm',
     'the-loai': 'Thể loại',
-    'quoc-gia': 'Quốc gia',
   };
 
   // Get the last segment for the current page title
