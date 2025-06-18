@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useRouter } from "next/navigation"
 import { api, MOVIE_TYPES } from "@/lib/api"
+import { Logo } from "@/components/logo"
 
 const menuItems = [
   { label: "Phim Mới", href: "/" },
@@ -75,10 +76,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-white flex items-center gap-2">
-            Phim Hay
-            <img src="/su4j8oqw.png" alt="Logo" className="w-10 h-10" />
-          </Link>
+          <Logo />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">

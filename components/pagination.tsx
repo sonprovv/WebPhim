@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from './ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Suspense } from 'react';
 
 interface PaginationProps {
   currentPage: number;
@@ -10,7 +11,7 @@ interface PaginationProps {
   onPageChange?: (page: number) => void;
 }
 
-export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+function PaginationContent({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -118,5 +119,19 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
+  );
+}
+
+export function Pagination(props: PaginationProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="animate-pulse bg-gray-800 h-10 w-10 rounded"></div>
+        <div className="animate-pulse bg-gray-800 h-10 w-10 rounded"></div>
+        <div className="animate-pulse bg-gray-800 h-10 w-10 rounded"></div>
+      </div>
+    }>
+      <PaginationContent {...props} />
+    </Suspense>
   );
 } 
