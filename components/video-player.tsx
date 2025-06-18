@@ -13,7 +13,7 @@ interface Episode {
 
 interface VideoPlayerProps {
   movie: {
-    _id: string;
+    id: string;
     name: string;
     poster_url?: string;
     [key: string]: any;

@@ -49,17 +49,17 @@ interface Movie {
   category?: { id: string; name: string; slug: string }[];
   country?: { id: string; name: string; slug: string }[];
   episodes?: Server[];
-  modified?: {
+  modified: {
     time: string;
   };
-  tmdb?: {
+  tmdb: {
     type: string | null;
     id: string | null;
     season: number | null;
     vote_average: number;
     vote_count: number;
   };
-  imdb?: {
+  imdb: {
     id: string | null;
   };
 }
