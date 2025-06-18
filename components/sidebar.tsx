@@ -150,7 +150,9 @@ export function Sidebar({ className, genres = [], countries = [], years = [] }: 
         <div className="mt-6 space-y-2">
           <Button 
             className="w-full bg-blue-600 hover:bg-blue-700"
-            onClick={() => //console.log('Filtering...')}
+            onClick={() => 
+              console.log('Filtering...')
+              }
           >
             Áp dụng
           </Button>
