@@ -31,6 +31,7 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -175,27 +176,30 @@ export function Header() {
                   ))}
                   <div className="pt-2 border-t border-gray-700">
                     <h3 className="text-gray-400 text-sm font-medium mb-2">Thể Loại</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {categories.slice(0, 10).map((category) => (
-                        <Link
-                          key={category.id}
-                          href={`/the-loai/${category.slug}`}
-                          className="text-sm text-gray-300 hover:text-white transition-colors py-1"
-                          onClick={() => setIsOpen(false)}
+                    <div className="max-h-[300px] overflow-y-auto pr-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        {categories
+                          .slice(0, isExpanded ? categories.length : 10)
+                          .map((category) => (
+                            <Link
+                              key={category.id}
+                              href={`/danh-sach/${category.slug}`}
+                              className="text-sm text-gray-300 hover:text-blue-400 transition-colors"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {category.name}
+                            </Link>
+                          ))}
+                      </div>
+                      {categories.length > 10 && (
+                        <button 
+                          className="text-sm text-blue-400 hover:underline mt-2 inline-block"
+                          onClick={() => setIsExpanded(!isExpanded)}
                         >
-                          {category.name}
-                        </Link>
-                      ))}
+                          {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+                        </button>
+                      )}
                     </div>
-                    {categories.length > 10 && (
-                      <Link 
-                        href="/the-loai"
-                        className="text-sm text-blue-400 hover:underline mt-2 inline-block"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Xem tất cả thể loại
-                      </Link>
-                    )}
                   </div>
                 </nav>
               </div>

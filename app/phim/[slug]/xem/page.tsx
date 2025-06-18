@@ -22,7 +22,7 @@ interface Episode {
 }
 
 interface Movie {
-  _id: string;
+  id: string;
   name: string;
   origin_name: string;
   content?: string;
@@ -49,6 +49,19 @@ interface Movie {
   category?: { id: string; name: string; slug: string }[];
   country?: { id: string; name: string; slug: string }[];
   episodes?: Server[];
+  modified?: {
+    time: string;
+  };
+  tmdb?: {
+    type: string | null;
+    id: string | null;
+    season: number | null;
+    vote_average: number;
+    vote_count: number;
+  };
+  imdb?: {
+    id: string | null;
+  };
 }
 
 interface MovieDetailResponse {
