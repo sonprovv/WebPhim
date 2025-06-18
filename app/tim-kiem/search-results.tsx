@@ -31,14 +31,14 @@ async function SearchResultsContent({ searchParams }: { searchParams: { q?: stri
     )
   }
 
-  const response = await searchMovies(searchParams.q, {
-    page: 1,
-    limit: 20,
-    sort_field: 'modified.time',
-    sort_type: 'desc',
-    type: searchParams.type === "all" ? undefined : searchParams.type,
-    year: searchParams.year === "all" ? undefined : Number(searchParams.year)
-  })
+  const response = await searchMovies(
+    searchParams.q,
+    {
+      sort_field: 'modified.time',
+      sort_type: 'desc',
+      year: searchParams.year === "all" ? undefined : Number(searchParams.year)
+    }
+  )
 
   if (!response.data.items.length) {
     return (
@@ -72,7 +72,7 @@ async function SearchResultsContent({ searchParams }: { searchParams: { q?: stri
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {movies.map((movie) => (
-        <MovieCard key={movie._id} movie={movie} />
+        <MovieCard key={movie.id} movie={movie} />
       ))}
     </div>
   )
@@ -91,12 +91,18 @@ export function SearchFilters({ searchParams }: { searchParams: { q?: string; ty
 
   return (
     <div className="flex items-center gap-2">
-      <Badge variant="secondary">Kết quả tìm kiếm cho: {searchParams.q}</Badge>
+      <Badge variant="secondary" className="bg-zinc-800 text-white">
+        Kết quả tìm kiếm cho: {searchParams.q}
+      </Badge>
       {searchParams.type && searchParams.type !== "all" && (
-        <Badge variant="secondary">Thể loại: {searchParams.type === "movie" ? "Phim lẻ" : "Phim bộ"}</Badge>
+        <Badge variant="secondary" className="bg-zinc-800 text-white">
+          Thể loại: {searchParams.type === "movie" ? "Phim lẻ" : "Phim bộ"}
+        </Badge>
       )}
       {searchParams.year && searchParams.year !== "all" && (
-        <Badge variant="secondary">Năm: {searchParams.year}</Badge>
+        <Badge variant="secondary" className="bg-zinc-800 text-white">
+          Năm: {searchParams.year}
+        </Badge>
       )}
     </div>
   )

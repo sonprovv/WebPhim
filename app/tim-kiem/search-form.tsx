@@ -25,7 +25,7 @@ export function SearchForm({ searchParams }: { searchParams: { q?: string; type?
           <SelectTrigger className="w-[180px] bg-zinc-800 border-zinc-700 text-white">
             <SelectValue placeholder="Thể loại" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
+          <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
             <SelectItem value="all">Tất cả</SelectItem>
             <SelectItem value="movie">Phim lẻ</SelectItem>
             <SelectItem value="series">Phim bộ</SelectItem>
@@ -35,10 +35,10 @@ export function SearchForm({ searchParams }: { searchParams: { q?: string; type?
           <SelectTrigger className="w-[180px] bg-zinc-800 border-zinc-700 text-white">
             <SelectValue placeholder="Năm phát hành" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-800 border-zinc-700">
-            <SelectItem value="all">Tất cả</SelectItem>
+          <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
+            <SelectItem value="all" className="text-white">Tất cả</SelectItem>
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-              <SelectItem key={year} value={year.toString()}>
+              <SelectItem key={year} value={year.toString()} className="text-white">
                 {year}
               </SelectItem>
             ))}
