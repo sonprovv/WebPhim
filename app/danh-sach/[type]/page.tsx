@@ -70,7 +70,7 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       year: searchParams?.year ? Number(searchParams.year) : undefined,
     };
 
-    console.log(`Fetching movies for type: ${type} with params:`, params);
+    // console.log(`Fetching movies for type: ${type} with params:`, params);
 
     const [moviesResponse, categoriesResponse, genresResponse, countriesResponse] = await Promise.allSettled([
       api.getMovieList(type as any, params),
@@ -79,18 +79,18 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       api.getCountries(),
     ]);
 
-    console.log('Movies Response:', {
-      status: moviesResponse.status,
-      value: moviesResponse.status === 'fulfilled' ? {
-        status: moviesResponse.value?.status,
-        msg: moviesResponse.value?.msg,
-        data: moviesResponse.value?.data ? {
-          items: moviesResponse.value.data.items?.length,
-          params: moviesResponse.value.data.params,
-          APP_DOMAIN_CDN_IMAGE: moviesResponse.value.data.APP_DOMAIN_CDN_IMAGE,
-        } : null,
-      } : moviesResponse.reason,
-    });
+    // console.log('Movies Response:', {
+    //   status: moviesResponse.status,
+    //   value: moviesResponse.status === 'fulfilled' ? {
+    //     status: moviesResponse.value?.status,
+    //     msg: moviesResponse.value?.msg,
+    //     data: moviesResponse.value?.data ? {
+    //       items: moviesResponse.value.data.items?.length,
+    //       params: moviesResponse.value.data.params,
+    //       APP_DOMAIN_CDN_IMAGE: moviesResponse.value.data.APP_DOMAIN_CDN_IMAGE,
+    //     } : null,
+    //   } : moviesResponse.reason,
+    // });
 
     if (moviesResponse.status === 'rejected') {
       console.error('Error fetching movies:', moviesResponse.reason);
@@ -119,7 +119,7 @@ export default function MovieListPage({
   searchParams = {},
 }: PageProps) {
   const { type } = params;
-  console.log(`[MovieListPage] Received type param: ${type}`);
+  // console.log(`[MovieListPage] Received type param: ${type}`);
   
   // Validate movie type
   if (!MOVIE_TYPES.includes(type as any)) {
@@ -272,14 +272,18 @@ async function MovieListContent({
                             type === 'tv-shows' ? 'TV Shows' :
                            type === 'phim-le' ? 'Phim Lẻ' :
                            type === 'hoat-hinh' ? 'Hoạt Hình' :
-                           type === 'anime' ? 'Anime' :
+                           type === 'tinh-cam' ? 'Tình Cảm' :
+                           type == 'chinh-kich' ? 'Chính Kịch':
+                           type == 'tam-ly' ? 'Tâm Lý' :
+                           type == 'hinh-su' ? 'Hình Sự' :
+                           type == 'co-trang' ? 'Cổ Trang' :
                            type.replace(/-/g, ' ');
 
     return (
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-3/4">
+        <div className="w-full">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-4">Thể loại: {currentCategory}</h1>
+            <h1 className="text-3xl font-bold mb-4 text-white">Thể loại: {currentCategory}</h1>
             <MovieGrid movies={movies} />
           </div>
 
@@ -287,7 +291,7 @@ async function MovieListContent({
           {pagination.totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
               {currentPage > 1 && (
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
                   <Link
                     href={{
                       pathname: `/danh-sach/${type}`,
@@ -299,8 +303,13 @@ async function MovieListContent({
                   </Link>
                 </Button>
               )}
+              <div className="flex items-center px-4 py-2 bg-blue-600 rounded-md">
+                <span className="text-sm font-medium text-white">
+                  Trang {currentPage}/{pagination.totalPages}
+                </span>
+              </div>
               {currentPage < pagination.totalPages && (
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
                   <Link
                     href={{
                       pathname: `/danh-sach/${type}`,
@@ -314,14 +323,6 @@ async function MovieListContent({
               )}
             </div>
           )}
-        </div>
-
-        <div className="w-full md:w-1/4">
-          <Sidebar
-            genres={genres}
-            countries={countries}
-            years={years}
-          />
         </div>
       </div>
     );

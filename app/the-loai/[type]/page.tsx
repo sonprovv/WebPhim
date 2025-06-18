@@ -1,43 +1,172 @@
-'use client';
+import { Suspense } from 'react';
+import { MovieGrid } from '@/components/movie-grid';
+import { Sidebar } from '@/components/sidebar';
+import { Header } from '@/components/header';
+import { api } from '@/lib/api';
+import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-import { useMovies } from '@/hooks/useMovies';
-import { MovieList } from '@/components/MovieList';
-// import { MovieFilters } from '@/components/MovieFilters'; // Remove if not used
-
-interface CategoryPageProps {
+interface PageProps {
   params: {
     type: string;
   };
+  searchParams: {
+    page?: string;
+    sort_field?: string;
+    sort_type?: string;
+    sort_lang?: string;
+  };
 }
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const {
-    movies,
-    loading,
-    error,
-    page,
-    setPage,
-    totalPages,
-    refetch,
-  } = useMovies({
-    type: params.type,
-    fetchType: 'category', // Specify that we are fetching by category
-  });
+async function fetchData(type: string, searchParams: PageProps['searchParams']) {
+  try {
+    const params = {
+      page: searchParams.page ? parseInt(searchParams.page) : 1,
+      sort_field: searchParams.sort_field || '_id',
+      sort_type: searchParams.sort_type as 'asc' | 'desc',
+      sort_lang: searchParams.sort_lang,
+    };
+
+    // console.log(`Fetching movies for genre: ${type} with params:`, params);
+
+    const [moviesResponse, categoriesResponse, genresResponse, countriesResponse] = await Promise.allSettled([
+      api.getMoviesByGenre(type, params),
+      api.getCategories(),
+      api.getGenres(),
+      api.getCountries(),
+    ]);
+
+    if (moviesResponse.status === 'rejected') {
+      console.error('Error fetching movies:', moviesResponse.reason);
+      throw new Error('Failed to fetch movies');
+    }
+
+    if (!moviesResponse.value || moviesResponse.value.status === 'error') {
+      console.error('API returned an error:', moviesResponse.value?.msg);
+      throw new Error(moviesResponse.value?.msg || 'Failed to fetch movies');
+    }
+
+    return {
+      moviesResponse,
+      categoriesResponse,
+      genresResponse,
+      countriesResponse,
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+}
+
+export default async function GenrePage({ params, searchParams }: PageProps) {
+  const dataPromise = fetchData(params.type, searchParams);
 
   return (
-    <main className="container py-8 bg-gray-900 text-white pt-16">
-      <h1 className="mb-8 text-3xl font-bold">
-        Thể loại: {params.type.replace(/-/g, ' ').toUpperCase()}
-      </h1>
-
-      <MovieList
-        movies={movies}
-        loading={loading}
-        error={error}
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
-    </main>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Header />
+      <div className="container mx-auto px-4 py-8">
+        <Suspense fallback={<div>Loading...</div>}>
+          <MovieListContent
+            dataPromise={dataPromise}
+            type={params.type}
+            searchParams={searchParams}
+          />
+        </Suspense>
+      </div>
+    </div>
   );
+}
+
+interface MovieListContentProps {
+  dataPromise: Promise<{
+    moviesResponse: PromiseSettledResult<any>;
+    categoriesResponse: PromiseSettledResult<any>;
+    genresResponse: PromiseSettledResult<any>;
+    countriesResponse: PromiseSettledResult<any>;
+  }>;
+  type: string;
+  searchParams: PageProps['searchParams'];
+}
+
+async function MovieListContent({
+  dataPromise,
+  type,
+  searchParams,
+}: MovieListContentProps) {
+  try {
+    const { moviesResponse, categoriesResponse, genresResponse, countriesResponse } = await dataPromise;
+
+    if (moviesResponse.status === 'rejected' || !moviesResponse.value) {
+      console.error('Error fetching movies:', moviesResponse.status === 'rejected' ? moviesResponse.reason : 'No data');
+      return notFound();
+    }
+
+    if (moviesResponse.value.status === 'error') {
+      return (
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Không tìm thấy thể loại</h2>
+          <p className="text-gray-400 mb-6">{moviesResponse.value.msg || 'Thể loại bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.'}</p>
+          <Button asChild>
+            <Link href="/">Về trang chủ</Link>
+          </Button>
+        </div>
+      );
+    }
+
+    const moviesData = moviesResponse.value.data;
+    if (!moviesData || !moviesData.items) {
+      console.error('Invalid API response structure:', moviesResponse.value);
+      return notFound();
+    }
+
+    const currentPage = parseInt(searchParams.page || '1');
+    const totalPages = moviesData.params.pagination.totalPages;
+    const currentType = type === 'tinh-cam' ? 'Tình Cảm' :
+                        type == 'chinh-kich' ? 'Chính Kịch':
+                        type == 'tam-ly' ? 'Tâm Lý' :
+                        type == 'hinh-su' ? 'Hình Sự' :
+                        type == 'co-trang' ? 'Cổ Trang' :
+                        type.replace(/-/g, ' ');
+    return (
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold mb-8">
+            Thể loại: {currentType}
+          </h1>
+          
+          <MovieGrid movies={moviesData.items} />
+
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {currentPage > 1 && (
+                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
+                  <Link href={`/the-loai/${type}?page=${currentPage - 1}`}>
+                    Trang trước
+                  </Link>
+                </Button>
+              )}
+              <div className="flex items-center px-4 py-2 bg-blue-600 rounded-md">
+                <span className="text-sm font-medium text-white">
+                  Trang {currentPage}/{totalPages}
+                </span>
+              </div>
+              {currentPage < totalPages && (
+                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
+                  <Link href={`/the-loai/${type}?page=${currentPage + 1}`}>
+                    Trang sau
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        
+      </div>
+    );
+  } catch (error) {
+    console.error('Error in MovieListContent:', error);
+    return notFound();
+  }
 } 

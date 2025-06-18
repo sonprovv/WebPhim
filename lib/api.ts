@@ -221,20 +221,20 @@ export const getMovieList = async (
   };
 
   try {
-    console.log(`[getMovieList] Fetching movies for type: ${type}`, { params: defaultParams });
+    // console.log(`[getMovieList] Fetching movies for type: ${type}`, { params: defaultParams });
 
     const response = await axios.get(url, {
       params: defaultParams,
       timeout: 15000,
     });
 
-    console.log(`[getMovieList] Response for ${type}:`, {
-      data: response.data,
-      config: {
-        url: response.config.url,
-        params: response.config.params,
-      },
-    });
+    // console.log(`[getMovieList] Response for ${type}:`, {
+    //   data: response.data,
+    //   config: {
+    //     url: response.config.url,
+    //     params: response.config.params,
+    //   },
+    // });
 
     if (response.data.status === "error") {
       const errorMessage = response.data.msg || "Lỗi từ API";
@@ -312,16 +312,16 @@ export const getCategories = async (): Promise<Category[]> => {
       timeout: 5000
     });
 
-    console.log('API Response:', response.data);
+    // console.log('API Response:', response.data);
 
     if (response.data && response.data.status === "success" && response.data.data) {
       // Extract unique categories from the movie items
       const categoriesMap = new Map();
       
-      console.log('Movie items:', response.data.data.items);
+      // console.log('Movie items:', response.data.data.items);
       
       response.data.data.items.forEach((movie: any) => {
-        console.log('Movie categories:', movie.category);
+        // console.log('Movie categories:', movie.category);
         if (movie.category && Array.isArray(movie.category)) {
           movie.category.forEach((cat: any) => {
             if (!categoriesMap.has(cat.id)) {
@@ -336,7 +336,7 @@ export const getCategories = async (): Promise<Category[]> => {
       });
       
       const categories = Array.from(categoriesMap.values());
-      console.log('Extracted categories:', categories);
+      // console.log('Extracted categories:', categories);
       return categories;
     }
     throw new Error("Không có dữ liệu thể loại");
@@ -525,6 +525,59 @@ export const getMoviesByCategory = async (
   }
 };
 
+export const getMoviesByGenre = async (
+  type_list: string,
+  params: {
+    page?: number;
+    sort_field?: string;
+    sort_type?: 'asc' | 'desc';
+    sort_lang?: string;
+  } = {}
+): Promise<CategoryMovieResponse> => {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', (params.page || 1).toString());
+    queryParams.append('sort_field', params.sort_field || '_id');
+    queryParams.append('sort_type', params.sort_type || 'desc');
+    if (params.sort_lang) {
+      queryParams.append('sort_lang', params.sort_lang);
+    }
+
+    const url = `${BASE_URL}${ENDPOINTS.CATEGORY}/${type_list}?${queryParams.toString()}`;
+    console.log('API URL:', url);
+
+    const response = await fetch(url, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.msg || 'Failed to fetch movies by genre');
+    }
+
+    if (data.status === 'error') {
+      throw new Error(data.msg || 'API returned an error');
+    }
+
+    // Process image URLs
+    const cdnImageDomain = data.data.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com';
+    data.data.items = data.data.items.map((movie: Movie) => ({
+      ...movie,
+      poster_url: movie.poster_url
+        ? (movie.poster_url.startsWith('http') ? movie.poster_url : `${cdnImageDomain}/${movie.poster_url}`.replace(/([^:]\/)\/+/g, '$1'))
+        : '/placeholder.jpg',
+      thumb_url: movie.thumb_url
+        ? (movie.thumb_url.startsWith('http') ? movie.thumb_url : `${cdnImageDomain}/${movie.thumb_url}`.replace(/([^:]\/)\/+/g, '$1'))
+        : '/placeholder.jpg',
+    }));
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching movies by genre:', error);
+    throw error;
+  }
+};
+
 // Export API object
 export const api = {
   getLatestMovies,
@@ -537,6 +590,7 @@ export const api = {
   getMoviesByCountry,
   getMoviesByYear,
   getMoviesByCategory,
+  getMoviesByGenre,
 } as const;
 
 export type Api = typeof api;
