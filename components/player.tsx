@@ -50,7 +50,7 @@ const isEmbeddable = (url: string): boolean => {
     
     return allowedPatterns.some(pattern => pattern.test(url));
   } catch (error) {
-    console.error('Error checking if URL is embeddable:', error);
+    //console.error('Error checking if URL is embeddable:', error);
     return false;
   }
 };
@@ -80,7 +80,7 @@ export function Player({ movie, episodes }: PlayerProps) {
   const canEmbed = embedUrl && isEmbeddable(embedUrl) && !embedError;
 
   const handleIframeError = () => {
-    console.error('Failed to load iframe content');
+    //console.error('Failed to load iframe content');
     setEmbedError(true);
   };
 

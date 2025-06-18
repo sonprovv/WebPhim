@@ -61,7 +61,7 @@ export default function MovieDetailPage() {
           });
         }
       } catch (err: any) {
-        console.error('Lỗi khi tải chi tiết phim:', err);
+        //console.error('Lỗi khi tải chi tiết phim:', err);
         if (isMounted) {
           setError(err.message || 'Có lỗi xảy ra khi tải thông tin phim');
         }

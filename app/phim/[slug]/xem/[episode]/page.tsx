@@ -104,7 +104,7 @@ export default function WatchPage() {
           throw new Error("Phim chưa có tập nào");
         }
       } catch (err: any) {
-        console.error("Lỗi khi tải dữ liệu phim:", err);
+        //console.error("Lỗi khi tải dữ liệu phim:", err);
         setError(err.message || "Có lỗi xảy ra khi tải thông tin phim");
       } finally {
         setLoading(false);

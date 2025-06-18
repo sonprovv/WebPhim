@@ -6,7 +6,7 @@ import "video.js/dist/video-js.css";
 import { AlertCircle } from "lucide-react";
 
 // Log video.js version
-console.log('video.js loaded');
+//console.log('video.js loaded');
 
 // Extend Window interface to include videojs and other globals
 declare global {
@@ -20,7 +20,7 @@ declare global {
 
 // Setup videojs with native HLS support
 if (typeof window !== "undefined") {
-  console.log("Setting up video.js on window object");
+  //console.log("Setting up video.js on window object");
   // @ts-ignore
   window.videojs = videojs;
 }
@@ -50,13 +50,13 @@ export function HLSPlayer({
   // Initialize video.js player
   const initializePlayer = useCallback(() => {
     if (!videoRef.current || !src || !isMounted.current) {
-      console.log("Skipping player init: missing ref, src, or unmounted");
+      //console.log("Skipping player init: missing ref, src, or unmounted");
       return;
     }
 
-    console.log("Initializing video player with src:", src);
-    console.log("Video element:", videoRef.current);
-    console.log("Is video element in DOM:", document.body.contains(videoRef.current));
+    //console.log("Initializing video player with src:", src);
+    //console.log("Video element:", videoRef.current);
+    //console.log("Is video element in DOM:", document.body.contains(videoRef.current));
     
     setIsLoading(true);
     setError(null);
@@ -117,49 +117,49 @@ export function HLSPlayer({
       // Thêm source vào options
       videoJsOptions.sources = [source];
 
-      console.log("Creating video.js instance with options:", videoJsOptions);
+      //console.log("Creating video.js instance with options:", videoJsOptions);
       
       try {
         const player = videojs(videoRef.current, videoJsOptions, function onPlayerReady() {
-          console.log("Video.js player is ready");
-          console.log("Player element:", this.el());
-          console.log("Player tech:", this.tech_);
+          //console.log("Video.js player is ready");
+          //console.log("Player element:", this.el());
+          //console.log("Player tech:", this.tech_);
           
           // Đảm bảo controls luôn hiển thị
           this.controls(true);
           
           if (isMounted.current) {
-            console.log("Setting player ready state");
+          //console.log("Setting player ready state");
             setIsPlayerReady(true);
             setIsLoading(false);
             
             // Thử phát tự động nếu được bật
             if (autoPlay) {
-              console.log("Attempting autoplay...");
+              //console.log("Attempting autoplay...");
               const playPromise = this.play();
               
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
-                    console.log("Autoplay successful");
+                    //console.log("Autoplay successful");
                   })
                   .catch(error => {
-                    console.log("Auto-play was prevented, showing controls");
-                    console.error("Autoplay error:", error);
+                    //console.log("Auto-play was prevented, showing controls");
+                    //console.error("Autoplay error:", error);
                     this.controls(true);
                     
                     // Thêm sự kiện click để phát video khi người dùng tương tác
                     const playOnClick = (() => {
                       const player = this as any; // Using 'any' as a last resort for video.js player type
                       return function(this: any) {
-                        console.log("User clicked, attempting to play...");
+                        //console.log("User clicked, attempting to play...");
                         player.play()
                           .then(() => {
-                            console.log("Playback started after user interaction");
+                            //console.log("Playback started after user interaction");
                             player.off('click', playOnClick);
                           })
                           .catch((e: Error) => {
-                            console.error("Failed to start playback after click:", e);
+                            //console.error("Failed to start playback after click:", e);
                           });
                       };
                     })();
@@ -174,7 +174,7 @@ export function HLSPlayer({
 
         // Thêm event listeners
         player.on('playing', () => {
-          console.log("Video is playing");
+          //console.log("Video is playing");
           if (isMounted.current) {
             setIsLoading(false);
           }
@@ -183,7 +183,7 @@ export function HLSPlayer({
         // Xử lý lỗi phát video
         player.on('error', () => {
           const error = player.error();
-          console.error("Video player error:", error);
+          //console.error("Video player error:", error);
           
           if (isMounted.current) {
             let errorMessage = "Lỗi khi phát video. ";
@@ -212,7 +212,7 @@ export function HLSPlayer({
               ) {
                 player.load();
                 (player.play as () => Promise<void>)().catch(() => {
-                  console.log("Auto-retry playback failed");
+                  //console.log("Auto-retry playback failed");
                 });
               }
             }, 5000);
@@ -226,14 +226,14 @@ export function HLSPlayer({
           }
         };
       } catch (err) {
-        console.error("Error initializing video player:", err);
+        //console.error("Error initializing video player:", err);
         if (isMounted.current) {
           setError("Không thể khởi tạo trình phát video. Vui lòng kiểm tra URL.");
           setIsLoading(false);
         }
       }
     } catch (err) {
-      console.error("Error initializing video player:", err);
+      //console.error("Error initializing video player:", err);
       if (isMounted.current) {
         setError("Không thể khởi tạo trình phát video. Vui lòng kiểm tra URL.");
         setIsLoading(false);
@@ -250,7 +250,7 @@ export function HLSPlayer({
       if (playerRef.current && !playerRef.current.isDisposed()) {
         playerRef.current.dispose();
         playerRef.current = null;
-        console.log("Player disposed");
+        //console.log("Player disposed");
       }
     };
   }, [initializePlayer]);
@@ -259,7 +259,7 @@ export function HLSPlayer({
   useEffect(() => {
     if (!playerRef.current || !src) return;
 
-    console.log("Source changed to:", src);
+    //console.log("Source changed to:", src);
     setIsLoading(true);
     setError(null);
     setIsPlayerReady(false);
@@ -278,13 +278,13 @@ export function HLSPlayer({
         const playPromise = playerRef.current.play();
         if (playPromise !== undefined) {
           playPromise.catch((error: unknown) => {
-            console.log("Auto-play was prevented, showing controls");
+            //console.log("Auto-play was prevented, showing controls");
             playerRef.current?.controls(true);
           });
         }
       }
     } catch (err) {
-      console.error("Error changing source:", err);
+      //console.error("Error changing source:", err);
       setError("Không thể tải video. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
@@ -325,9 +325,9 @@ export function HLSPlayer({
         case "k":
           e.preventDefault();
           if (playerRef.current.paused()) {
-            playerRef.current.play().catch((err: any) =>
-              console.error("Play failed:", err)
-            );
+            // playerRef.current.play().catch((err: any) =>
+            //   //console.error("Play failed:", err)
+            // );
           } else {
             playerRef.current.pause();
           }
@@ -371,13 +371,13 @@ export function HLSPlayer({
   // Log player state changes
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      console.log("Player state changed:", {
-        isPlayerReady,
-        error,
-        isLoading,
-        src: src ? `${src.substring(0, 30)}...` : "no source",
-        hasPoster: !!poster,
-      });
+      //console.log("Player state changed:", {
+      //   isPlayerReady,
+      //   error,
+      //   isLoading,
+      //   src: src ? `${src.substring(0, 30)}...` : "no source",
+      //   hasPoster: !!poster,
+      // });
     }
   }, [isPlayerReady, error, isLoading, src, poster]);
 
@@ -403,14 +403,14 @@ export function HLSPlayer({
     const displayError = error || "Không tìm thấy nguồn video";
 
     if (process.env.NODE_ENV === "development") {
-      console.error("Video player error:", {
-        error: error || "No error message",
-        src: src ? `${src.substring(0, 30)}...` : "empty",
-        hasPoster: !!poster,
-        autoPlay,
-        controls,
-        className,
-      });
+      //console.error("Video player error:", {
+      //   error: error || "No error message",
+      //   src: src ? `${src.substring(0, 30)}...` : "empty",
+      //   hasPoster: !!poster,
+      //   autoPlay,
+      //   controls,
+      //   className,
+      // });
     }
 
     return (

@@ -53,7 +53,7 @@ export function HLSPlayer({
           videojs.registerPlugin("hlsQualitySelector", hlsQualitySelector.default);
         }
       } catch (err) {
-        console.error("Failed to register video.js plugins:", err);
+        //console.error("Failed to register video.js plugins:", err);
       }
     };
     
@@ -65,7 +65,7 @@ export function HLSPlayer({
     if (playerRef.current) {
       setError(null);
       playerRef.current.play().catch((err: Error) => {
-        console.warn("Play failed:", err);
+        //console.warn("Play failed:", err);
         setError("Không thể phát video. Vui lòng thử lại.");
       });
     }
@@ -83,7 +83,7 @@ export function HLSPlayer({
       // Skip if player is already initialized
       const existingPlayer = videojs.getPlayers()[videoRef.current.id];
       if (existingPlayer) {
-        console.log('Player already initialized, reusing instance');
+        //console.log('Player already initialized, reusing instance');
         playerRef.current = existingPlayer;
         setIsLoading(false);
         return;
@@ -117,7 +117,7 @@ export function HLSPlayer({
         }, () => {
           if (!isMounted) return;
           
-          console.log("Player is ready");
+          //console.log("Player is ready");
           setIsLoading(false);
           
           // Initialize quality selector if available
@@ -129,7 +129,7 @@ export function HLSPlayer({
               player.hlsQualitySelector({ displayCurrentQuality: true });
             }
           } catch (e) {
-            console.warn('Failed to initialize quality selector:', e);
+            //console.warn('Failed to initialize quality selector:', e);
           }
           
           // Don't auto-play immediately, show play button instead
@@ -144,7 +144,7 @@ export function HLSPlayer({
           if (!isMounted) return;
           
           const error = player.error();
-          console.error('VideoJS Error:', error);
+          //console.error('VideoJS Error:', error);
           setError("Không thể tải video. Vui lòng thử lại.");
           setIsLoading(false);
         });
@@ -152,7 +152,7 @@ export function HLSPlayer({
         playerRef.current = player;
         
       } catch (err) {
-        console.error("Error initializing video player:", err);
+        //console.error("Error initializing video player:", err);
         if (isMounted) {
           setError("Không thể tải trình phát video. Vui lòng thử lại.");
           setIsLoading(false);
@@ -175,7 +175,7 @@ export function HLSPlayer({
             player.dispose();
           }
         } catch (e) {
-          console.warn('Error cleaning up player:', e);
+          //console.warn('Error cleaning up player:', e);
         }
       }
     };

@@ -23,7 +23,7 @@ interface MovieActionsProps {
 }
 
 export function MovieActions({ movie, episodes }: MovieActionsProps) {
-  console.log('Movie slug:', movie.slug);
+  //console.log('Movie slug:', movie.slug);
   return (
     <div className="flex space-x-4 mb-6">
       <Link href={`/phim/${movie.slug}/xem`}>

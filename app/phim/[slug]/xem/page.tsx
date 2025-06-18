@@ -124,7 +124,7 @@ export default function WatchPage() {
           .filter((m) => m.slug !== slug);
         setRelatedMovies(allRelatedMovies.slice(0, 5)); // Lấy tối đa 5 phim liên quan
       } catch (err) {
-        console.error("Lỗi khi tải dữ liệu WatchPage:", err);
+        //console.error("Lỗi khi tải dữ liệu WatchPage:", err);
         setError(err instanceof Error ? err.message : "Đã xảy ra lỗi");
       } finally {
         setLoading(false);

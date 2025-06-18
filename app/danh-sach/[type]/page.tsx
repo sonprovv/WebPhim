@@ -71,7 +71,7 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       year: searchParams?.year ? Number(searchParams.year) : undefined,
     };
 
-    // console.log(`Fetching movies for type: ${type} with params:`, params);
+    // //console.log(`Fetching movies for type: ${type} with params:`, params);
 
     const [moviesResponse, categoriesResponse, genresResponse] = await Promise.allSettled([
       api.getMovieList(type as any, params),
@@ -80,7 +80,7 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       // api.getCountries(),
     ]);
 
-    // console.log('Movies Response:', {
+    // //console.log('Movies Response:', {
     //   status: moviesResponse.status,
     //   value: moviesResponse.status === 'fulfilled' ? {
     //     status: moviesResponse.value?.status,
@@ -94,12 +94,12 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
     // });
 
     if (moviesResponse.status === 'rejected') {
-      console.error('Error fetching movies:', moviesResponse.reason);
+      //console.error('Error fetching movies:', moviesResponse.reason);
       throw new Error('Failed to fetch movies');
     }
 
     if (!moviesResponse.value || moviesResponse.value.status === 'error') {
-      console.error('API returned an error:', moviesResponse.value?.msg);
+      //console.error('API returned an error:', moviesResponse.value?.msg);
       throw new Error(moviesResponse.value?.msg || 'Failed to fetch movies');
     }
 
@@ -110,7 +110,7 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       // countriesResponse,
     };
   } catch (error) {
-    console.error('Error fetching data:', error);
+    //console.error('Error fetching data:', error);
     throw error;
   }
 }
@@ -120,11 +120,11 @@ export default function MovieListPage({
   searchParams = {},
 }: PageProps) {
   const { type } = params;
-  // console.log(`[MovieListPage] Received type param: ${type}`);
+  // //console.log(`[MovieListPage] Received type param: ${type}`);
   
   // Validate movie type
   if (!MOVIE_TYPES.includes(type as any)) {
-    console.error(`Invalid movie type: ${type}`);
+    //console.error(`Invalid movie type: ${type}`);
     return notFound();
   }
 
@@ -179,13 +179,13 @@ async function MovieListContent({
 
     // Handle API responses
     if (moviesResponse.status === 'rejected' || !moviesResponse.value) {
-      console.error('Error fetching movies:', moviesResponse.status === 'rejected' ? moviesResponse.reason : 'No data');
+      //console.error('Error fetching movies:', moviesResponse.status === 'rejected' ? moviesResponse.reason : 'No data');
       return notFound();
     }
 
     // Check if the API returned an error response
     if (moviesResponse.value.status === 'error') {
-      console.error('API returned an error:', moviesResponse.value.msg);
+      //console.error('API returned an error:', moviesResponse.value.msg);
       return (
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-4">Không tìm thấy thể loại</h2>
@@ -199,7 +199,7 @@ async function MovieListContent({
 
     const moviesData = moviesResponse.value.data;
     if (!moviesData || !moviesData.items) {
-      console.error('Invalid API response structure:', moviesResponse.value);
+      //console.error('Invalid API response structure:', moviesResponse.value);
       return notFound();
     }
 
@@ -299,7 +299,7 @@ async function MovieListContent({
       </div>
     );
   } catch (error) {
-    console.error('Error in MovieListContent:', error);
+    //console.error('Error in MovieListContent:', error);
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold mb-4">Có lỗi xảy ra</h2>

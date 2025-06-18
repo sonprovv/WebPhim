@@ -220,7 +220,7 @@ export const getLatestMovies = async (params: MovieListParams = { page: 1 }): Pr
       },
     };
   } catch (error) {
-    console.error(`Error fetching latest movies from ${url}:`, error);
+    //console.error(`Error fetching latest movies from ${url}:`, error);
     return {
       status: "error",
       msg: "Không thể tải dữ liệu phim mới",
@@ -247,14 +247,14 @@ export const getMovieList = async (
   };
 
   try {
-    // console.log(`[getMovieList] Fetching movies for type: ${type}`, { params: defaultParams });
+    // //console.log(`[getMovieList] Fetching movies for type: ${type}`, { params: defaultParams });
 
     const response = await axios.get(url, {
       params: defaultParams,
       timeout: 15000,
     });
 
-    // console.log(`[getMovieList] Response for ${type}:`, {
+    // //console.log(`[getMovieList] Response for ${type}:`, {
     //   data: response.data,
     //   config: {
     //     url: response.config.url,
@@ -264,7 +264,7 @@ export const getMovieList = async (
 
     if (response.data.status === "error") {
       const errorMessage = response.data.msg || "Lỗi từ API";
-      console.error(`[getMovieList] API Error: ${errorMessage}`);
+      //console.error(`[getMovieList] API Error: ${errorMessage}`);
       return {
         status: "error",
         msg: errorMessage,
@@ -307,7 +307,7 @@ export const getMovieList = async (
       },
     };
   } catch (error) {
-    console.error(`Error fetching movie list from ${url}:`, error);
+    //console.error(`Error fetching movie list from ${url}:`, error);
     return {
       status: "error",
       msg: error instanceof Error ? error.message : "Không thể tải dữ liệu phim",
@@ -347,7 +347,7 @@ export const getCategories = async (): Promise<Category[]> => {
     }
     throw new Error("Không có dữ liệu thể loại");
   } catch (error) {
-    console.error(`Error fetching categories api:`, error);
+    // //console.error(`Error fetching categories api:`, error);
     return [];
   }
 };
@@ -368,7 +368,7 @@ export const getCountries = async (): Promise<Country[]> => {
     }
     throw new Error("Không có dữ liệu quốc gia");
   } catch (error) {
-    console.error(`Error fetching countries from ${url}:`, error);
+    //console.error(`Error fetching countries from ${url}:`, error);
     return [];
   }
 };
@@ -392,7 +392,7 @@ export const getMovieDetail = async (slug: string): Promise<MovieDetailResponse>
 
     return data;
   } catch (error: any) {
-    console.error("Lỗi khi tải chi tiết phim:", error);
+    //console.error("Lỗi khi tải chi tiết phim:", error);
     throw new Error(
       error.message || "Có lỗi xảy ra khi tải chi tiết phim. Vui lòng thử lại sau."
     );
@@ -411,7 +411,7 @@ export const searchMovies = async (keyword: string, params: MovieListParams = {}
     }
     return response.data;
   } catch (error) {
-    console.error(`Error searching movies from ${url}:`, error);
+    //console.error(`Error searching movies from ${url}:`, error);
     return {
       status: "error",
       msg: "Không thể tìm thấy phim",
@@ -437,7 +437,7 @@ export const getMoviesByCountry = async (slug: string, params: MovieListParams =
     }
     return response.data;
   } catch (error) {
-    console.error(`Error fetching movies by country from ${url}:`, error);
+    //console.error(`Error fetching movies by country from ${url}:`, error);
     return {
       status: "error",
       msg: "Không thể tải dữ liệu phim theo quốc gia",
@@ -462,7 +462,7 @@ export const getMoviesByYear = async (year: number, params: MovieListParams = {}
     }
     return response.data;
   } catch (error) {
-    console.error(`Error fetching movies by year from ${url}:`, error);
+    //console.error(`Error fetching movies by year from ${url}:`, error);
     return {
       status: "error",
       msg: "Không thể tải dữ liệu phim theo năm",
@@ -497,7 +497,7 @@ export const getMoviesByCategory = async (
 
     // Use the correct endpoint for category movies
     const url = `${BASE_URL}/v1/api/danh-sach/${category}?${queryParams.toString()}`;
-    // console.log('API URL:', url);
+    // //console.log('API URL:', url);
 
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
@@ -526,7 +526,7 @@ export const getMoviesByCategory = async (
 
     return data;
   } catch (error) {
-    console.error('Error fetching movies by category:', error);
+    //console.error('Error fetching movies by category:', error);
     throw error;
   }
 };
@@ -550,7 +550,7 @@ export const getMoviesByGenre = async (
     }
 
     const url = `${BASE_URL}${ENDPOINTS.CATEGORY}/${type_list}?${queryParams.toString()}`;
-    // console.log('API URL:', url);
+    // //console.log('API URL:', url);
 
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
@@ -579,7 +579,7 @@ export const getMoviesByGenre = async (
 
     return data;
   } catch (error) {
-    console.error('Error fetching movies by genre:', error);
+    //console.error('Error fetching movies by genre:', error);
     throw error;
   }
 };
@@ -597,7 +597,7 @@ export const getNewMovies = async (
     });
 
     const url = `${BASE_URL}/danh-sach/phim-moi-cap-nhat?${queryParams.toString()}`;
-    // console.log('API URL:', url);
+    // //console.log('API URL:', url);
 
     const response = await fetch(url, {
       next: { revalidate: 3600 } // Cache for 1 hour
@@ -634,7 +634,7 @@ export const getNewMovies = async (
     }
     throw new Error("Không có dữ liệu phim");
   } catch (error) {
-    console.error(`Error fetching new movies:`, error);
+    //console.error(`Error fetching new movies:`, error);
     return {
       status: false,
       items: [],

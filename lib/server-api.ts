@@ -20,7 +20,7 @@ export const getServerMovieDetail = async (slug: string) => {
 
     return response.data;
   } catch (error: any) {
-    console.error('Lỗi khi tải chi tiết phim từ API:', error);
+    //console.error('Lỗi khi tải chi tiết phim từ API:', error);
     throw new Error(
       error.response?.data?.message || 
       error.message || 

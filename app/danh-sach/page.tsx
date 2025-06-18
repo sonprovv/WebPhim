@@ -55,7 +55,7 @@ export default async function MovieListPage() {
       </div>
     );
   } catch (error) {
-    console.error('Error:', error);
+    //console.error('Error:', error);
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         {/* <Header /> */}

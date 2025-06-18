@@ -40,20 +40,20 @@ export function Header() {
 
     const fetchCategories = async () => {
       try {
-        console.log('Fetching categories...');
+        // //console.log('Fetching categories...');
         const fetchedCategories = await api.getCategories();
-        // console.log('Raw fetched categories:', JSON.stringify(fetchedCategories, null, 2));
+        // //console.log('Raw fetched categories:', JSON.stringify(fetchedCategories, null, 2));
         
         if (isMounted) {
           if (fetchedCategories && fetchedCategories.length > 0) {
-            console.log('Setting categories:', JSON.stringify(fetchedCategories, null, 2));
+            //console.log('Setting categories:', JSON.stringify(fetchedCategories, null, 2));
             setCategories(fetchedCategories);
           } else {
-            console.warn('No categories fetched or empty response');
+            //console.warn('No categories fetched or empty response');
           }
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        //console.error('Error fetching categories:', error);
       }
     }
 
