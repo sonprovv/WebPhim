@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Pagination } from '@/components/pagination';
 
 interface Movie {
   id: string;
@@ -72,11 +73,11 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
 
     // console.log(`Fetching movies for type: ${type} with params:`, params);
 
-    const [moviesResponse, categoriesResponse, genresResponse, countriesResponse] = await Promise.allSettled([
+    const [moviesResponse, categoriesResponse, genresResponse] = await Promise.allSettled([
       api.getMovieList(type as any, params),
       api.getCategories(),
       api.getGenres(),
-      api.getCountries(),
+      // api.getCountries(),
     ]);
 
     // console.log('Movies Response:', {
@@ -106,7 +107,7 @@ async function fetchData(type: string, currentPage: number, itemsPerPage: number
       moviesResponse,
       categoriesResponse,
       genresResponse,
-      countriesResponse,
+      // countriesResponse,
     };
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -158,7 +159,7 @@ interface MovieListContentProps {
     moviesResponse: PromiseSettledResult<any>;
     categoriesResponse: PromiseSettledResult<any>;
     genresResponse: PromiseSettledResult<any>;
-    countriesResponse: PromiseSettledResult<any>;
+    // countriesResponse: PromiseSettledResult<any>;
   }>;
   type: string;
   currentPage: number;
@@ -174,7 +175,7 @@ async function MovieListContent({
   searchParams,
 }: MovieListContentProps) {
   try {
-    const { moviesResponse, categoriesResponse, genresResponse, countriesResponse } = await dataPromise;
+    const { moviesResponse, categoriesResponse, genresResponse } = await dataPromise;
 
     // Handle API responses
     if (moviesResponse.status === 'rejected' || !moviesResponse.value) {
@@ -238,13 +239,13 @@ async function MovieListContent({
         }))
       : [];
 
-    const countries = countriesResponse.status === 'fulfilled'
-      ? countriesResponse.value.map((country: Country) => ({
-          id: country.id,
-          name: country.name,
-          count: 0,
-        }))
-      : [];
+    // const countries = countriesResponse.status === 'fulfilled'
+    //   ? countriesResponse.value.map((country: Country) => ({
+    //       id: country.id,
+    //       name: country.name,
+    //       count: 0,
+    //     }))
+    //   : [];
 
     // Generate years for filter (last 10 years)
     const currentYear = new Date().getFullYear();
@@ -283,45 +284,16 @@ async function MovieListContent({
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-4 text-white">Thể loại: {currentCategory}</h1>
+            <h1 className="text-3xl font-bold mb-4 text-white">{currentCategory}</h1>
             <MovieGrid movies={movies} />
           </div>
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {currentPage > 1 && (
-                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
-                  <Link
-                    href={{
-                      pathname: `/danh-sach/${type}`,
-                      query: { ...searchParams, page: currentPage - 1 },
-                    }}
-                  >
-                    <ChevronLeft className="mr-2 h-4 w-4" />
-                    Trang trước
-                  </Link>
-                </Button>
-              )}
-              <div className="flex items-center px-4 py-2 bg-blue-600 rounded-md">
-                <span className="text-sm font-medium text-white">
-                  Trang {currentPage}/{pagination.totalPages}
-                </span>
-              </div>
-              {currentPage < pagination.totalPages && (
-                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
-                  <Link
-                    href={{
-                      pathname: `/danh-sach/${type}`,
-                      query: { ...searchParams, page: currentPage + 1 },
-                    }}
-                  >
-                    Trang sau
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              )}
-            </div>
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+            />
           )}
         </div>
       </div>

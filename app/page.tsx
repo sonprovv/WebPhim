@@ -1,39 +1,41 @@
-import { Suspense } from 'react';
-import { MovieGrid } from "@/components/movie-grid";
-import { Sidebar } from "@/components/sidebar";
+import { Metadata } from "next";
+import { api } from "@/lib/api";
+import { MovieCard } from "@/components/movie-card";
+import { Pagination } from "@/components/pagination";
 import { Header } from "@/components/header";
-import { SidebarProvider } from "@/components/sidebar-context";
-import { getLatestMovies, getGenres, getCountries } from "@/lib/api";
 
-export default async function HomePage() {
-  const moviesResponse = await getLatestMovies({
-    page: 1,
-    limit: 20
-  });
-  const newMovies = moviesResponse.data?.items || [];
+export const metadata: Metadata = {
+  title: "Xem Phim HD Vietsub - Phim Mới Cập Nhật",
+  description: "Xem phim mới cập nhật, phim hay nhất, phim HD vietsub, thuyết minh, lồng tiếng chất lượng cao",
+};
 
-  const genres = await getGenres();
-  const countries = await getCountries();
+interface PageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
-  const years = Array.from({ length: 10 }, (_, i) => {
-    const year = new Date().getFullYear() - i;
-    return { id: year.toString(), name: year.toString(), count: 0 };
-  });
+export default async function HomePage({ searchParams }: PageProps) {
+  const page = Number(searchParams.page) || 1;
+  const { items: movies, pagination } = await api.getNewMovies(page);
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <section>
-            <h2 className="text-3xl font-bold mb-6">Phim Mới Cập Nhật</h2>
-            <Suspense fallback={<div className="h-96 bg-gray-800 animate-pulse rounded-lg">Loading...</div>}>
-              <MovieGrid movies={newMovies} />
-            </Suspense>
-          </section>
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-8">Phim Mới Cập Nhật</h1>
         
-      </div>
-    </SidebarProvider>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {movies.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+
+        {pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+          />
+        )}
+      </main>
+    </div>
   );
 }

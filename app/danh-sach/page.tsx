@@ -5,12 +5,18 @@ import { Header } from "@/components/header";
 import { api } from "@/lib/api";
 import type { FilterItem } from "@/components/sidebar";
 import Link from 'next/link';
+import { Pagination } from '@/components/pagination';
 
 export default async function MovieListPage() {
   try {
     const categories = await api.getCategories();
     const genres = await api.getGenres();
     const countries = await api.getCountries();
+    
+    // Calculate pagination
+    const itemsPerPage = 12;
+    const totalPages = Math.ceil(categories.length / itemsPerPage);
+    const currentPage = 1;
     
     return (
       <div className="min-h-screen bg-gray-900 text-white">
@@ -31,6 +37,13 @@ export default async function MovieListPage() {
                 </div>
               ))}
             </div>
+            
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+              />
+            )}
           </section>
         </div>
         <Sidebar 

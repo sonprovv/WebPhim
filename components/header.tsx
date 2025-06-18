@@ -74,8 +74,9 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-white">
-            PhimHay
+          <Link href="/" className="text-2xl font-bold text-white flex items-center gap-2">
+            Phim Hay
+            <img src="/su4j8oqw.png" alt="Logo" className="w-10 h-10" />
           </Link>
 
           {/* Desktop Navigation */}

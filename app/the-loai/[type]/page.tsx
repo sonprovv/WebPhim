@@ -30,11 +30,11 @@ async function fetchData(type: string, searchParams: PageProps['searchParams']) 
 
     // console.log(`Fetching movies for genre: ${type} with params:`, params);
 
-    const [moviesResponse, categoriesResponse, genresResponse, countriesResponse] = await Promise.allSettled([
+    const [moviesResponse, categoriesResponse, genresResponse] = await Promise.allSettled([
       api.getMoviesByGenre(type, params),
       api.getCategories(),
       api.getGenres(),
-      api.getCountries(),
+      // api.getCountries(),
     ]);
 
     if (moviesResponse.status === 'rejected') {
@@ -51,7 +51,7 @@ async function fetchData(type: string, searchParams: PageProps['searchParams']) 
       moviesResponse,
       categoriesResponse,
       genresResponse,
-      countriesResponse,
+      // countriesResponse,
     };
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -83,7 +83,7 @@ interface MovieListContentProps {
     moviesResponse: PromiseSettledResult<any>;
     categoriesResponse: PromiseSettledResult<any>;
     genresResponse: PromiseSettledResult<any>;
-    countriesResponse: PromiseSettledResult<any>;
+    // countriesResponse: PromiseSettledResult<any>;
   }>;
   type: string;
   searchParams: PageProps['searchParams'];
@@ -95,7 +95,7 @@ async function MovieListContent({
   searchParams,
 }: MovieListContentProps) {
   try {
-    const { moviesResponse, categoriesResponse, genresResponse, countriesResponse } = await dataPromise;
+    const { moviesResponse, categoriesResponse, genresResponse } = await dataPromise;
 
     if (moviesResponse.status === 'rejected' || !moviesResponse.value) {
       console.error('Error fetching movies:', moviesResponse.status === 'rejected' ? moviesResponse.reason : 'No data');
@@ -127,12 +127,31 @@ async function MovieListContent({
                         type == 'tam-ly' ? 'Tâm Lý' :
                         type == 'hinh-su' ? 'Hình Sự' :
                         type == 'co-trang' ? 'Cổ Trang' :
+                        type === 'hanh-dong' ? 'Hành Động' :
+                        type == 'mien-tay' ? 'Miền Tây':
+                        type == 'tre-em' ? 'Trẻ Em' :
+                        type == 'lich-su' ? 'Lịch Sử' :
+                        type == 'chien-tranh' ? 'Chiến Tranh' :
+                        type == 'vien-tuong' ? 'Viễn Tưởng' :
+                        type === 'kinh-di' ? 'kinh Dị' :
+                        type == 'tai-lieu' ? 'Tài Liệu':
+                        type == 'bi-an' ? 'Bí Ẩn' :
+                        type == 'the-thao' ? 'Thể Thao' :
+                        type == 'phieu-luu' ? 'Phiêu Lưu' :
+                        type == 'am-nhac' ? 'Âm nhạc' :
+                        type == 'gia-dinh' ? 'Gia Đình' :
+                        type == 'hoc-duong' ? 'Học Đường' :
+                        type === 'hai-huoc' ? 'Hài Hước' :
+                        type == 'vo-thuat' ? 'Võ Thuật':
+                        type == 'khoa-hoc' ? 'Khoa Học' :
+                        type == 'than-thoai' ? 'Thần Thoại' :
+                        type == 'kinh-dien' ? 'Kinh Điển' :
                         type.replace(/-/g, ' ');
     return (
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
           <h1 className="text-3xl font-bold mb-8">
-            Thể loại: {currentType}
+            {currentType}
           </h1>
           
           <MovieGrid movies={moviesData.items} />

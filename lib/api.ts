@@ -72,14 +72,29 @@ export interface Server {
 }
 
 export interface Movie {
-  _id: string;
+  id: string;
   name: string;
+  slug: string;
   origin_name: string;
+  thumb_url: string;
+  poster_url: string;
+  year: number;
+  modified: {
+    time: string;
+  };
+  tmdb: {
+    type: string | null;
+    id: string | null;
+    season: number | null;
+    vote_average: number;
+    vote_count: number;
+  };
+  imdb: {
+    id: string | null;
+  };
   content?: string;
   type?: string;
   status?: string;
-  thumb_url: string;
-  poster_url: string;
   is_copyright?: boolean;
   sub_docquyen?: boolean;
   chieurap?: boolean;
@@ -91,8 +106,6 @@ export interface Movie {
   lang?: string;
   notify?: string;
   showtimes?: string;
-  slug: string;
-  year: number;
   view?: number;
   actor?: string[];
   director?: string[];
@@ -164,6 +177,19 @@ export interface CategoryMovieResponse {
     APP_DOMAIN_FRONTEND: string;
     APP_DOMAIN_CDN_IMAGE: string;
   };
+}
+
+export interface Pagination {
+  totalItems: number;
+  totalItemsPerPage: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export interface MovieListResponse {
+  status: boolean;
+  items: Movie[];
+  pagination: Pagination;
 }
 
 // API functions with retry and timeout
@@ -303,45 +329,25 @@ export const getMovieList = async (
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
-    // Get categories from the movie list response
-    const response = await axios.get(`${BASE_URL}/v1/api/danh-sach/phim-bo`, {
-      params: {
-        page: 1,
-        sort_field: '_id'
-      },
+    const response = await axios.get(`${BASE_URL}/the-loai`, {
       timeout: 5000
     });
 
-    // console.log('API Response:', response.data);
-
-    if (response.data && response.data.status === "success" && response.data.data) {
-      // Extract unique categories from the movie items
-      const categoriesMap = new Map();
+    if (response.data) {
+      // Transform the data to match our Category interface and filter out adult content
+      const categories = response.data
+        .filter((category: any) => category.slug !== 'phim-18') // Filter out adult content
+        .map((category: any) => ({
+          id: category._id,
+          name: category.name,
+          slug: category.slug
+        }));
       
-      // console.log('Movie items:', response.data.data.items);
-      
-      response.data.data.items.forEach((movie: any) => {
-        // console.log('Movie categories:', movie.category);
-        if (movie.category && Array.isArray(movie.category)) {
-          movie.category.forEach((cat: any) => {
-            if (!categoriesMap.has(cat.id)) {
-              categoriesMap.set(cat.id, {
-                id: cat.id,
-                name: cat.name,
-                slug: cat.slug
-              });
-            }
-          });
-        }
-      });
-      
-      const categories = Array.from(categoriesMap.values());
-      // console.log('Extracted categories:', categories);
       return categories;
     }
     throw new Error("Không có dữ liệu thể loại");
   } catch (error) {
-    console.error(`Error fetching categories:`, error);
+    console.error(`Error fetching categories api:`, error);
     return [];
   }
 };
@@ -491,7 +497,7 @@ export const getMoviesByCategory = async (
 
     // Use the correct endpoint for category movies
     const url = `${BASE_URL}/v1/api/danh-sach/${category}?${queryParams.toString()}`;
-    console.log('API URL:', url);
+    // console.log('API URL:', url);
 
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
@@ -544,7 +550,7 @@ export const getMoviesByGenre = async (
     }
 
     const url = `${BASE_URL}${ENDPOINTS.CATEGORY}/${type_list}?${queryParams.toString()}`;
-    console.log('API URL:', url);
+    // console.log('API URL:', url);
 
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
@@ -578,6 +584,70 @@ export const getMoviesByGenre = async (
   }
 };
 
+export const getNewMovies = async (
+  page: number = 1,
+  sortField: string = "_id",
+  sortOrder: string = "desc"
+): Promise<MovieListResponse> => {
+  try {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      sort_field: sortField,
+      sort_order: sortOrder
+    });
+
+    const url = `${BASE_URL}/danh-sach/phim-moi-cap-nhat?${queryParams.toString()}`;
+    // console.log('API URL:', url);
+
+    const response = await fetch(url, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.status === true && data.items) {
+      return {
+        status: data.status,
+        items: data.items.map((item: any) => ({
+          id: item._id,
+          name: item.name,
+          slug: item.slug,
+          origin_name: item.origin_name,
+          thumb_url: item.thumb_url,
+          poster_url: item.poster_url,
+          year: item.year,
+          modified: item.modified,
+          tmdb: item.tmdb,
+          imdb: item.imdb
+        })),
+        pagination: {
+          totalItems: data.pagination.totalItems,
+          totalItemsPerPage: data.pagination.totalItemsPerPage,
+          currentPage: data.pagination.currentPage,
+          totalPages: data.pagination.totalPages
+        }
+      };
+    }
+    throw new Error("Không có dữ liệu phim");
+  } catch (error) {
+    console.error(`Error fetching new movies:`, error);
+    return {
+      status: false,
+      items: [],
+      pagination: {
+        totalItems: 0,
+        totalItemsPerPage: 10,
+        currentPage: 1,
+        totalPages: 0
+      }
+    };
+  }
+};
+
 // Export API object
 export const api = {
   getLatestMovies,
@@ -591,6 +661,7 @@ export const api = {
   getMoviesByYear,
   getMoviesByCategory,
   getMoviesByGenre,
+  getNewMovies,
 } as const;
 
 export type Api = typeof api;
