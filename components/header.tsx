@@ -12,6 +12,12 @@ import { useRouter } from "next/navigation"
 import { api, MOVIE_TYPES } from "@/lib/api"
 import { Logo } from "@/components/logo"
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const menuItems = [
   { label: "Phim Mới", href: "/" },
   { label: "Phim Bộ", href: `/danh-sach/${MOVIE_TYPES[0]}` },
@@ -20,12 +26,6 @@ const menuItems = [
   { label: "Hoạt Hình", href: `/danh-sach/${MOVIE_TYPES[3]}` },
 
 ]
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -42,7 +42,7 @@ export function Header() {
       try {
         console.log('Fetching categories...');
         const fetchedCategories = await api.getCategories();
-        console.log('Raw fetched categories:', JSON.stringify(fetchedCategories, null, 2));
+        // console.log('Raw fetched categories:', JSON.stringify(fetchedCategories, null, 2));
         
         if (isMounted) {
           if (fetchedCategories && fetchedCategories.length > 0) {
@@ -74,12 +74,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center h-16">
           {/* Logo */}
-          <Logo />
+          <div className="flex-shrink-0">
+            <Logo />
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden lg:flex items-center justify-center flex-1 space-x-6">
             {menuItems.map((item) => (
               <Link 
                 key={item.href} 
@@ -120,89 +122,67 @@ export function Header() {
             </div>
           </nav>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center space-x-2">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Tìm kiếm phim..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-              />
-              <Button type="submit" size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0">
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-
-          {/* Mobile Menu */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="lg:hidden">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-gray-900 border-gray-800">
-              <div className="flex flex-col space-y-4 mt-8">
-                {/* Mobile Search */}
-                <form onSubmit={handleSearch} className="flex items-center space-x-2">
-                  <Input
-                    type="text"
-                    placeholder="Tìm kiếm phim..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-                  />
-                  <Button type="submit" size="sm">
-                    <Search className="h-4 w-4" />
-                  </Button>
-                </form>
-
-                {/* Mobile Navigation */}
-                <nav className="flex flex-col space-y-2">
-                  {menuItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-gray-300 hover:text-white transition-colors py-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                  
-                      {item.label}
+          {/* Mobile Menu Button */}
+          <div className="flex items-center lg:hidden ml-auto">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="bg-gray-900 border-r border-gray-800 w-64 p-0 [--radix-dialog-close-display:none]">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center h-16 px-4 border-b border-gray-800 justify-between">
+                    <Logo />
+                    <Link href="/tim-kiem">
+                      <Button variant="ghost" size="icon">
+                        <Search className="h-6 w-6 text-white" />
+                        <span className="sr-only">Tìm kiếm</span>
+                      </Button>
                     </Link>
-                  ))}
-                  <div className="pt-2 border-t border-gray-700">
-                    <h3 className="text-gray-400 text-sm font-medium mb-2">Thể Loại</h3>
-                    <div className="max-h-[300px] overflow-y-auto pr-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        {categories
-                          .slice(0, isExpanded ? categories.length : 10)
-                          .map((category) => (
-                            <Link
-                              key={category.id}
-                              href={`/danh-sach/${category.slug}`}
-                              className="text-sm text-gray-300 hover:text-blue-400 transition-colors"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              {category.name}
-                            </Link>
-                          ))}
-                      </div>
-                      {categories.length > 10 && (
-                        <button 
-                          className="text-sm text-blue-400 hover:underline mt-2 inline-block"
-                          onClick={() => setIsExpanded(!isExpanded)}
-                        >
-                          {isExpanded ? 'Thu gọn' : 'Xem thêm'}
-                        </button>
-                      )}
-                    </div>
                   </div>
-                </nav>
-              </div>
-            </SheetContent>
-          </Sheet>
+                  <nav className="flex flex-col gap-1 p-4">
+                    {menuItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-gray-300 hover:text-white px-3 py-2 rounded transition-colors text-base font-medium"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                    {/* Categories Dropdown (scrollable for mobile) */}
+                    <div className="mt-2">
+                      <div className="text-gray-400 text-xs uppercase mb-1">Thể loại</div>
+                      <div className="max-h-[300px] overflow-y-auto pr-1">
+                        {categories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={`/the-loai/${category.slug}`}
+                            className="block px-3 py-2 text-gray-300 hover:text-white rounded transition-colors text-sm"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            {category.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Search Button */}
+          <div className="hidden lg:flex items-center">
+            <Link href="/tim-kiem">
+              <Button variant="ghost" size="icon">
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Tìm kiếm</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </header>

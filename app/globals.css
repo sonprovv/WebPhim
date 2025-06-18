@@ -106,3 +106,8 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Hide Radix Sheet/Dialog close (X) button */
+[data-radix-dialog-close] {
+  display: none !important;
+}

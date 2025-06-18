@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Pagination } from "@/components/pagination";
 
 interface PageProps {
   params: {
@@ -157,27 +158,7 @@ async function MovieListContent({
           <MovieGrid movies={moviesData.items} />
 
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {currentPage > 1 && (
-                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
-                  <Link href={`/the-loai/${type}?page=${currentPage - 1}`}>
-                    Trang trước
-                  </Link>
-                </Button>
-              )}
-              <div className="flex items-center px-4 py-2 bg-blue-600 rounded-md">
-                <span className="text-sm font-medium text-white">
-                  Trang {currentPage}/{totalPages}
-                </span>
-              </div>
-              {currentPage < totalPages && (
-                <Button asChild variant="outline" className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700">
-                  <Link href={`/the-loai/${type}?page=${currentPage + 1}`}>
-                    Trang sau
-                  </Link>
-                </Button>
-              )}
-            </div>
+            <Pagination currentPage={currentPage} totalPages={totalPages} />
           )}
         </div>
 
