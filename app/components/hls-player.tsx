@@ -172,6 +172,49 @@ export function HLSPlayer({
 
         playerRef.current = player;
 
+        // ===== Lưu và khôi phục vị trí xem dở =====
+        const storageKey = `progress:${src}`;
+        let lastSaved = 0;
+
+        // Khi metadata tải xong, thử seek tới vị trí đã lưu
+        player.on('loadedmetadata', () => {
+          try {
+            const raw = localStorage.getItem(storageKey);
+            if (!raw) return;
+            const data = JSON.parse(raw) as { time: number; duration: number } | null;
+            if (data && typeof data.time === 'number' && data.time > 0) {
+              const dur = player.duration();
+              if (dur && data.time < dur - 30) {
+                player.currentTime(data.time);
+              }
+            }
+          } catch {}
+        });
+
+        // Cập nhật tiến độ mỗi 15s
+        player.on('timeupdate', () => {
+          const current = Number(player.currentTime());
+          const duration = Number(player.duration());
+          if (!duration) return;
+          if (Math.abs(current - lastSaved) < 15) return;
+          // Không lưu khi gần cuối
+          if (current > 30 && current < duration - 30) {
+            lastSaved = current;
+            try {
+              localStorage.setItem(storageKey, JSON.stringify({ time: current, duration }));
+            } catch {}
+          }
+        });
+
+        // Khi xem hết, xoá tiến độ
+        player.on('ended', () => {
+          try {
+            localStorage.removeItem(storageKey);
+          } catch {}
+        });
+
+        // ===== Kết thúc lưu vị trí =====
+
         // Thêm event listeners
         player.on('playing', () => {
           //console.log("Video is playing");

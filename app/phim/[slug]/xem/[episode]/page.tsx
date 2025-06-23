@@ -8,6 +8,7 @@ import { Player } from "@/app/components/player";
 import { Movie } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle } from "lucide-react";
+import { addToHistory } from '@/lib/history';
 
 export default function WatchPage() {
   const params = useParams();
@@ -19,7 +20,7 @@ export default function WatchPage() {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentEpisode, setCurrentEpisode] = useState<string>(episode); // Sử dụng string cho slug
+  const [currentEpisode, setCurrentEpisode] = useState<string>(episode);
   const [videoUrl, setVideoUrl] = useState<string | null>(null); // Thêm state cho video URL
   const [episodes, setEpisodes] = useState<any[]>([]); // Cần thay bằng interface Server nếu có
   const serverIndex = parseInt(searchParams.get("server") || "0");
@@ -100,6 +101,14 @@ export default function WatchPage() {
           const videoSource = episodeData.link_m3u8 || episodeData.link_embed;
           setVideoUrl(videoSource);
           setCurrentEpisode(episodeData.slug);
+
+          // Record history in localStorage
+          addToHistory({
+            slug,
+            episodeSlug: episodeData.slug,
+            title: data.movie?.name || slug,
+            posterUrl: data.movie?.poster_url,
+          });
         } else {
           throw new Error("Phim chưa có tập nào");
         }
@@ -158,26 +167,6 @@ export default function WatchPage() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-2">{movie.name}</h1>
 
-        {/* Server selection */}
-        {episodes.length > 1 && (
-          <div className="mb-4">
-            <h3 className="text-lg font-medium mb-2">Chọn máy chủ:</h3>
-            <div className="flex flex-wrap gap-2">
-              {episodes.map((server, index) => (
-                <Button
-                  key={index}
-                  variant={index === serverIndex ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleServerChange(index)}
-                  className="text-sm"
-                >
-                  {server.server_name}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Player */}
         {embedUrl ? (
           <div className="mb-6">
@@ -224,6 +213,24 @@ export default function WatchPage() {
           <div className="lg:col-span-3">
             <div className="bg-gray-800 rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Danh sách tập</h2>
+
+              {/* Server switch buttons */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {episodes.map((server, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleServerChange(idx)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      idx === serverIndex
+                        ? "bg-green-600 text-white shadow"
+                        : "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                    }`}
+                  >
+                    {server.server_name}
+                  </button>
+                ))}
+              </div>
+
               <div className="space-y-4">
                 {episodes.map((server, index) => (
                   <div key={index} className="bg-gray-700 rounded-lg p-4">
@@ -233,10 +240,10 @@ export default function WatchPage() {
                         <button
                           key={ep.slug}
                           onClick={() => handleEpisodeSelect(ep.slug)}
-                          className={`px-3 py-1 rounded-md ${
+                          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors border ${
                             currentEpisode === ep.slug
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-600 hover:bg-gray-500"
+                              ? "bg-blue-600 border-blue-500 text-white shadow"
+                              : "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600 hover:border-gray-500"
                           }`}
                         >
                           {ep.name || `Tập ${ep.slug.split("-").pop() || server.server_data.indexOf(ep) + 1}`}

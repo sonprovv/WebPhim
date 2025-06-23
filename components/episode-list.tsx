@@ -111,7 +111,7 @@ export function EpisodeList({
                     return (
                       <Link
                         key={episode.slug}
-                        href={`/phim/${movieSlug}/xem/${episode.slug || `tap-${episode.displayNumber}`}`}
+                        href={`/phim/${movieSlug}/xem/${episode.slug || `tap-${episode.displayNumber}`}` + `?server=${index}`}
                         className={`inline-flex items-center justify-center min-w-[44px] h-10 rounded-md ${
                           isCurrent
                             ? 'bg-blue-600 text-white'

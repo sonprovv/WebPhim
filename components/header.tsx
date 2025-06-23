@@ -4,7 +4,8 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, Menu, ChevronDown } from "lucide-react"
+import { Search, Menu, ChevronDown, Clock } from "lucide-react"
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -134,12 +135,23 @@ export function Header() {
                 <div className="flex flex-col h-full">
                   <div className="flex items-center h-16 px-4 border-b border-gray-800 justify-between">
                     <Logo />
-                    <Link href="/tim-kiem">
-                      <Button variant="ghost" size="icon">
-                        <Search className="h-6 w-6 text-white" />
-                        <span className="sr-only">Tìm kiếm</span>
-                      </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link href="/tim-kiem">
+                        <Button variant="ghost" size="icon">
+                          <Search className="h-6 w-6 text-white" />
+                          <span className="sr-only">Tìm kiếm</span>
+                        </Button>
+                      </Link>
+                      <SignedIn>
+                        <Link href="/lich-su">
+                          <Button variant="ghost" size="icon">
+                            <Clock className="h-6 w-6 text-white" />
+                            <span className="sr-only">Lịch sử xem</span>
+                          </Button>
+                        </Link>
+                        <UserButton afterSignOutUrl="/" />
+                      </SignedIn>
+                    </div>
                   </div>
                   <nav className="flex flex-col gap-1 p-4">
                     {menuItems.map((item) => (
@@ -174,14 +186,28 @@ export function Header() {
             </Sheet>
           </div>
 
-          {/* Search Button */}
-          <div className="hidden lg:flex items-center">
+          {/* Search, History, Auth Buttons */}
+          <div className="flex items-center space-x-2 ml-auto">
             <Link href="/tim-kiem">
               <Button variant="ghost" size="icon">
                 <Search className="h-5 w-5" />
                 <span className="sr-only">Tìm kiếm</span>
               </Button>
             </Link>
+
+            <Link href="/lich-su">
+              <Button variant="ghost" size="icon">
+                <Clock className="h-5 w-5" />
+                <span className="sr-only">Lịch sử xem</span>
+              </Button>
+            </Link>
+
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal" />
+            </SignedOut>
           </div>
         </div>
       </div>
