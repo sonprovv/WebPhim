@@ -39,9 +39,9 @@ export default function WatchPage() {
   // Handle episode change
   const handleEpisodeChange = useCallback(
     (newEpisodeSlug: string) => {
-      router.push(`/phim/${slug}/xem/${newEpisodeSlug}`);
+      router.push(`/phim/${slug}/xem/${newEpisodeSlug}?server=${serverIndex}`);
     },
-    [router, slug]
+    [router, slug, serverIndex]
   );
 
   // Handle server change
@@ -94,7 +94,7 @@ export default function WatchPage() {
 
           // Update URL if we had to redirect to first episode
           if (episodeData.slug !== episode) {
-            router.replace(`/phim/${slug}/xem/${episodeData.slug}`);
+            router.replace(`/phim/${slug}/xem/${episodeData.slug}?server=${serverIndex}`);
           }
 
           // Set video URL
